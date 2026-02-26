@@ -1,0 +1,44 @@
+# Node modules
+/node_modules
+
+# Build outputs
+/dist
+/out-tsc
+/tmp
+/tmp*
+
+# Angular cache
+/.angular/cache
+
+# IDEs & editors
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files
+/src/environments/environment*.ts
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled JS
+*.js
+*.js.map
+
+# Compiled CSS
+*.css
+*.css.map
+
+# Test coverage
+/coverage
