@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+}
+
+@layer components {
+  .nav-link {
+    @apply flex items-center gap-3 px-3.5 py-2.5 rounded-xl cursor-pointer
+           text-white/60 text-sm font-medium transition-all duration-150 no-underline;
+  }
+  .nav-link:hover { @apply bg-white/10 text-white; }
+  .nav-link.active-link {
+    @apply text-white;
+    background-color: #00a84f;
+    box-shadow: 0 4px 14px rgba(0,168,79,0.35);
+  }
+  .card { @apply bg-white rounded-2xl shadow-sm border border-gray-100; }
+  .btn-green {
+    @apply bg-sencsu-green text-white text-sm font-semibold px-4 py-2 rounded-xl
+           hover:bg-sencsu-green-dark transition-all active:scale-95 border-0 cursor-pointer;
+  }
+  .btn-outline-green {
+    @apply bg-white text-sencsu-green border border-sencsu-green text-sm font-semibold
+           px-4 py-2 rounded-xl hover:bg-sencsu-green-light transition-all active:scale-95 cursor-pointer;
+  }
+  .form-ctrl {
+    @apply border border-gray-200 rounded-xl px-3 py-2 text-sm font-sans bg-gray-50
+           outline-none transition-all focus:border-sencsu-green focus:bg-white
+           focus:ring-2 focus:ring-green-100;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .pill { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .pill-green { @apply bg-sencsu-green-light text-sencsu-green-dark; }
+  .pill-blue  { @apply bg-blue-50 text-blue-700; }
+  .pill-red   { @apply bg-sencsu-red-light text-red-700; }
+  .pill-yellow{ @apply bg-yellow-50 text-yellow-700; }
+  .pill-gray  { @apply bg-gray-100 text-gray-500; }
+  .pill-pink  { @apply bg-pink-50 text-pink-700; }
+  .tbl th {
+    @apply bg-gray-50 px-4 py-3 text-left text-xs font-bold uppercase tracking-wide
+           text-gray-400 border-b border-gray-200 whitespace-nowrap;
+  }
+  .tbl td { @apply px-4 py-3 text-gray-700 text-sm whitespace-nowrap; }
+  .tbl tr { @apply border-b border-gray-100 transition-colors; }
+  .tbl tr:hover { @apply bg-gray-50; }
+  .tbl tr:last-child { @apply border-b-0; }
+}
+
+@layer utilities {
+  .page-anim { animation: pageIn .25s ease forwards; }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }

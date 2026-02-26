@@ -1,0 +1,111 @@
+<!-- Script Chart.js via CDN -->
+<div *ngIf="!loading" class="hidden">
+</div>
+
+<!-- Loader -->
+<div *ngIf="loading" class="flex items-center justify-center h-64">
+  <div class="flex flex-col items-center gap-3">
+    <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+    <p class="text-sm text-gray-400">Chargement...</p>
+  </div>
+</div>
+
+<div *ngIf="!loading" class="page-anim space-y-6">
+
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Tableau de bord</h1>
+    <p class="text-sm text-gray-400 mt-1">Indicateurs de performance — Exercice 2025</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <app-stat-card label="Total Beneficiaires" [value]="stats!.totalBeneficiaires" icon="👥" trend="+8.4%" sub="vs mois precedent" color="green"/>
+    <app-stat-card label="Hommes" [value]="stats!.hommes" icon="👨" [trend]="(stats!.hommes * 100 / stats!.totalBeneficiaires | number:'1.0-0') + '%'" sub="du total" color="blue"/>
+    <app-stat-card label="Femmes" [value]="stats!.femmes" icon="👩" [trend]="(stats!.femmes * 100 / stats!.totalBeneficiaires | number:'1.0-0') + '%'" sub="du total" color="red"/>
+    <app-stat-card label="Communes couvertes" [value]="stats!.communesCouvertes" icon="🏘️" trend="+3" sub="nouvelles ce mois" color="yellow"/>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <div class="card p-5 xl:col-span-2">
+      <p class="text-sm font-bold text-gray-800">Beneficiaires par Departement</p>
+      <p class="text-xs text-gray-400 mb-4">Repartition Hommes / Femmes</p>
+      <canvas id="chartDept" height="85"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Repartition par Sexe</p>
+      <p class="text-xs text-gray-400 mb-4">Distribution globale</p>
+      <canvas id="chartSexe" height="175"></canvas>
+    </div>
+  </div>
+
+    <div class="card p-5 xl:col-span-2">
+      <p class="text-sm font-bold text-gray-800">Beneficiaires par Commune</p>
+      <p class="text-xs text-gray-400 mb-4">Repartition Hommes / Femmes</p>
+      <canvas id="chartCom" height="85"></canvas>
+    </div>
+
+  <!-- Charts Row 2 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Enrolement mensuel 2025</p>
+      <p class="text-xs text-gray-400 mb-4">Janvier – Decembre</p>
+      <canvas id="chartMensuel" height="155"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Type de beneficiaire</p>
+      <p class="text-xs text-gray-400 mb-4">Classique vs Dara</p>
+      <canvas id="chartType" height="155"></canvas>
+    </div>
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Remise carte assuree</p>
+      <p class="text-xs text-gray-400 mb-4">Taux de distribution</p>
+      <canvas id="chartCarte" height="155"></canvas>
+    </div>
+  </div>
+
+  <!-- Commune Table -->
+  <div class="card overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center gap-3 flex-wrap">
+      <div class="flex items-center gap-2 flex-1">
+        <span>📍</span>
+        <h2 class="text-sm font-bold text-gray-800">Beneficiaires par Commune</h2>
+      </div>
+      <select class="form-ctrl text-sm" [(ngModel)]="selectedDept" (change)="filterCommunes()">
+        <option value="">Tous les departements</option>
+        <option *ngFor="let d of depts" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th class="w-10">#</th><th>Commune</th><th>Departement</th>
+            <th>Region</th><th>Total</th><th>Hommes</th><th>Femmes</th><th>Progression</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredCommunes; let i = index">
+            <td class="text-gray-400 font-mono text-xs">{{ i+1 }}</td>
+            <td class="font-semibold text-gray-800">{{ c.commune }}</td>
+            <td class="text-gray-600">{{ c.departement }}</td>
+            <td><span class="pill pill-green">{{ c.region }}</span></td>
+            <td><strong>{{ c.total }}</strong></td>
+            <td class="text-blue-600">{{ c.hommes }}</td>
+            <td class="text-red-500">{{ c.femmes }}</td>
+            <td class="min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sencsu-green to-sencsu-green-mid rounded-full"
+                       [style.width.%]="pct(c.total)"></div>
+                </div>
+                <span class="text-xs text-gray-400 w-8 text-right">{{ pct(c.total) }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

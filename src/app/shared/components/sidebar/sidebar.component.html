@@ -1,0 +1,47 @@
+<aside class="w-64 min-h-screen bg-sencsu-green-dark flex flex-col overflow-y-auto flex-shrink-0">
+
+  <!-- Logo -->
+  <div class="px-5 py-6 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow">
+        <svg viewBox="0 0 100 100" class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" fill="#00853f"/>
+          <path d="M30 50 Q50 20 70 50 Q50 80 30 50Z" fill="#fdef42"/>
+          <circle cx="50" cy="50" r="11" fill="white"/>
+          <circle cx="50" cy="50" r="5" fill="#00853f"/>
+          <line x1="22" y1="36" x2="78" y2="36" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="22" y1="64" x2="78" y2="64" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-base font-extrabold text-white tracking-tight leading-none">SENCSU</div>
+        <div class="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Couverture Sanitaire</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 px-3 py-4 space-y-0.5">
+    <ng-container *ngFor="let item of navItems">
+      <div *ngIf="getSectionLabel(item) as section"
+           class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 pt-4 pb-1.5 mt-1">
+        {{ section }}
+      </div>
+      <a [routerLink]="item.route"
+         routerLinkActive="active-link"
+         class="nav-link">
+        <span class="text-base leading-none w-5 text-center flex-shrink-0">{{ item.icon }}</span>
+        <span class="flex-1 truncate text-sm">{{ item.label }}</span>
+        <span *ngIf="item.badge"
+              class="ml-auto bg-sencsu-yellow text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">
+          {{ item.badge }}
+        </span>
+      </a>
+    </ng-container>
+  </nav>
+
+  <!-- Footer -->
+  <div class="px-5 py-3 border-t border-white/10 text-center">
+    <p class="text-[10px] text-white/25">© 2025 SENCSU · Senegal</p>
+  </div>
+</aside>

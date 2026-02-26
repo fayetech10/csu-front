@@ -1,0 +1,143 @@
+<div class="page-anim space-y-5">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Beneficiaires</h1>
+      <p class="text-sm text-gray-400 mt-0.5">Gestion et consultation de la liste des beneficiaires</p>
+    </div>
+    <button class="btn-green flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Exporter CSV
+    </button>
+  </div>
+
+  <div class="card overflow-hidden">
+
+    <!-- Toolbar -->
+    <div class="px-5 py-4 border-b border-gray-100 space-y-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- Search -->
+        <div class="relative flex-1 min-w-48">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="form-ctrl w-full pl-9" placeholder="Rechercher nom, agent, commune..." [ngModel]="filter.search" (ngModelChange)="onSearch($event)"/>
+        </div>
+        <button class="btn-outline-green flex items-center gap-1.5 text-sm" (click)="showFilters = !showFilters">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          {{ showFilters ? 'Masquer filtres' : 'Filtres avances' }}
+        </button>
+        <button *ngIf="hasActiveFilter()" (click)="reset()"
+                class="text-red-500 text-sm font-semibold px-3 py-2 rounded-xl hover:bg-red-50 transition-colors border-0 cursor-pointer bg-transparent">
+          Reinitialiser
+        </button>
+      </div>
+
+      <!-- Advanced filters -->
+      <div *ngIf="showFilters" class="flex flex-wrap gap-2.5 pt-1">
+        <select class="form-ctrl" [(ngModel)]="filter.sexe" (change)="onFilter()">
+          <option value="">Sexe</option><option value="Masculin">Masculin</option><option value="Feminin">Feminin</option>
+        </select>
+        <select class="form-ctrl" [(ngModel)]="filter.typeBenef" (change)="onFilter()">
+          <option value="">Type</option><option value="Classique">Classique</option><option value="Dara">Dara</option>
+        </select>
+        <select class="form-ctrl" [(ngModel)]="filter.carteAssure" (change)="onFilter()">
+          <option value="">Carte assuree</option><option value="Remise">Remise</option><option value="Non remise">Non remise</option>
+        </select>
+        <select class="form-ctrl" [(ngModel)]="filter.region" (change)="onRegionChange()">
+          <option value="">Region</option>
+          <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+        </select>
+        <select class="form-ctrl" [(ngModel)]="filter.departement" (change)="onDeptChange()" [disabled]="!depts.length">
+          <option value="">Departement</option>
+          <option *ngFor="let d of depts" [value]="d">{{ d }}</option>
+        </select>
+        <select class="form-ctrl" [(ngModel)]="filter.commune" (change)="onFilter()" [disabled]="!communes.length">
+          <option value="">Commune</option>
+          <option *ngFor="let c of communes" [value]="c">{{ c }}</option>
+        </select>
+        <div class="flex items-center gap-1.5">
+          <input class="form-ctrl w-20" type="number" placeholder="Age min" [(ngModel)]="filter.ageMin" (change)="onFilter()" min="0"/>
+          <span class="text-gray-400">–</span>
+          <input class="form-ctrl w-20" type="number" placeholder="Age max" [(ngModel)]="filter.ageMax" (change)="onFilter()" min="0"/>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <input class="form-ctrl" type="date" [(ngModel)]="filter.dateDebut" (change)="onFilter()"/>
+          <span class="text-gray-400 text-sm">a</span>
+          <input class="form-ctrl" type="date" [(ngModel)]="filter.dateFin" (change)="onFilter()"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="loading" class="flex items-center justify-center h-36">
+      <div class="w-8 h-8 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading" class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th>Agent</th><th>Qualite</th><th>Prenom</th><th>Nom</th>
+            <th>Date Naiss.</th><th>Age</th><th>Situation</th><th>Sexe</th>
+            <th>Cotisation</th><th>Type</th><th>Region</th>
+            <th>Departement</th><th>Commune</th><th>Telephone</th>
+            <th>Carte</th><th>Date Remise</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of result.data">
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" [ngClass]="avClass(b)">{{ initials(b) }}</div>
+                <span class="text-xs text-gray-600 whitespace-nowrap">{{ b.agent_collect }}</span>
+              </div>
+            </td>
+            <td><span class="pill pill-gray">{{ b.beneficiare }}</span></td>
+            <td class="font-medium">{{ b.prenoms }}</td>
+            <td class="font-semibold text-gray-800">{{ b.noms }}</td>
+            <td class="font-mono text-xs text-gray-500">{{ b.dateNaissance }}</td>
+            <td><span class="pill pill-gray">{{ b.age }} ans</span></td>
+            <td class="text-xs text-gray-500">{{ b.situationM }}</td>
+            <td><span [class]="sexePill(b.sexe)">{{ b.sexe }}</span></td>
+            <td class="font-mono text-xs text-gray-500">{{ b.dateCotisation }}</td>
+            <td><span [class]="typePill(b.typeBenef)">{{ b.typeBenef }}</span></td>
+            <td class="text-xs">{{ b.region }}</td>
+            <td class="text-xs">{{ b.departement }}</td>
+            <td class="text-xs font-medium text-gray-700">{{ b.commune }}</td>
+            <td class="font-mono text-xs text-gray-500">{{ b.telephone }}</td>
+            <td><span [class]="cartePill(b.carteAssure)">{{ b.carteAssure }}</span></td>
+            <td class="font-mono text-xs text-gray-500">{{ b.dateRemise ?? '—' }}</td>
+          </tr>
+          <tr *ngIf="result.data.length === 0">
+            <td colspan="16" class="text-center py-14">
+              <div class="flex flex-col items-center gap-2 text-gray-400">
+                <span class="text-4xl">🔍</span>
+                <p class="font-semibold">Aucun beneficiaire trouve</p>
+                <p class="text-xs">Modifiez vos criteres de recherche</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+      <p class="text-sm text-gray-400">
+        <strong class="text-gray-700">{{ startIdx }}–{{ endIdx }}</strong> sur
+        <strong class="text-gray-700">{{ result.total }}</strong> beneficiaires
+      </p>
+      <div class="flex items-center gap-1">
+        <button class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer bg-white"
+                [disabled]="page === 1" (click)="load(page - 1)">‹</button>
+        <button *ngFor="let p of pages"
+                class="w-8 h-8 rounded-lg border text-sm font-medium transition-colors cursor-pointer"
+                [class]="p === page ? 'bg-sencsu-green text-white border-sencsu-green' : 'border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'"
+                (click)="load(p)">{{ p }}</button>
+        <button class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer bg-white"
+                [disabled]="page === result.totalPages" (click)="load(page + 1)">›</button>
+      </div>
+    </div>
+  </div>
+</div>
