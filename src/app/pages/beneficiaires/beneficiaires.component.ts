@@ -72,6 +72,7 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
   sexePill(s: string) { return s === 'Masculin' ? 'pill pill-blue' : 'pill pill-pink'; }
   typePill(t: string) { return t === 'Classique' ? 'pill pill-green' : 'pill pill-yellow'; }
   cartePill(c: string) { return c === 'Remise' ? 'pill pill-green' : 'pill pill-gray'; }
+  beneficiaireClass(b: Beneficiaire) { return b.beneficiare === 'Adhérent' ? 'bg-green-500 text-white' : 'bg-pink-50 text-pink-700'; }
   initials(b: Beneficiaire) { return (b.prenoms[0] + b.noms[0]).toUpperCase(); }
   avClass(b: Beneficiaire) { return b.sexe === 'Homme' ? 'from-blue-400 to-blue-600' : 'from-sencsu-green to-sencsu-green-mid'; }
 

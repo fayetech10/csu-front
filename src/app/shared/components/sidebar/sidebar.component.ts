@@ -21,7 +21,8 @@ export class SidebarComponent {
     { label: 'Suivi de couverture',    route: '/suivi-couverture',    icon: '📈',  section: 'Analyse' },
     { label: 'Enrolement mensuel',     route: '/enroulement-mensuel', icon: '📅' },
     { label: 'Performance des agents', route: '/performance-agents',  icon: '⭐' },
-    { label: 'Classement',             route: '/classement',          icon: '🏆' }
+    { label: 'Classement',             route: '/classement',          icon: '🏆' },
+    { label: 'Enrolements',            route: '/enrolement',         icon: '📋' }
   ];
 
   private _seen = new Set<string>();

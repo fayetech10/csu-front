@@ -12,5 +12,6 @@ export const routes: Routes = [
   { path: 'enroulement-mensuel', loadComponent: () => import('./pages/enroulement-mensuel/enroulement-mensuel.component').then(m => m.EnroulementMensuelComponent) },
   { path: 'performance-agents',  loadComponent: () => import('./pages/performance-agents/performance-agents.component').then(m => m.PerformanceAgentsComponent) },
   { path: 'classement',          loadComponent: () => import('./pages/classement/classement.component').then(m => m.ClassementComponent) },
+  { path: 'enrolement',          loadComponent: () => import('./pages/enrolements/enrolements.component').then(m => m.EnrolementsComponent) },
   { path: '**', redirectTo: 'dashboard' }
 ];

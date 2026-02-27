@@ -12,26 +12,7 @@ export class BeneficiaireService {
   // Changez l'URL selon votre environnement (dev ou prod)
   private readonly apiUrl = 'http://localhost:8080/api'; 
 
-  /**
-   * Récupère la liste paginée et filtrée depuis le backend.
-   * On envoie les filtres en tant que Query Parameters.
-   */
-  // getBeneficiaires(filter: BeneficiaireFilter = {}, page = 1, perPage = 15): Observable<PageResult<Beneficiaire>> {
-  //   let params = new HttpParams()
-  //     .set('page', page.toString())
-  //     .set('perPage', perPage.toString());
 
-  //   // Ajout dynamique des filtres aux paramètres de la requête
-  //   if (filter.search) params = params.set('search', filter.search);
-  //   if (filter.sexe) params = params.set('sexe', filter.sexe);
-  //   if (filter.typeBeneficiaire) params = params.set('typeBeneficiaire', filter.typeBeneficiaire);
-  //   if (filter.carteAssuree) params = params.set('carteAssuree', filter.carteAssuree);
-  //   if (filter.region) params = params.set('region', filter.region);
-  //   if (filter.departement) params = params.set('departement', filter.departement);
-  //   if (filter.commune) params = params.set('commune', filter.commune);
-    
-  //   return this.http.get<PageResult<Beneficiaire>>(`${this.apiUrl}/beneficiaires`, { params });
-  // }
    getBeneficiaires(page = 0, size = 100): Observable<PageResult<Beneficiaire>> {
 
     const params = new HttpParams()

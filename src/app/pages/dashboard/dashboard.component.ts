@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loading = true;
-    this.svc.getBeneficiaires(0, 10000) // prend toutes les données
+    this.svc.getBeneficiaires(0, 1000) // prend toutes les données
       .subscribe(res => {
         const data = res.data; // <-- tes Beneficiaires
         console.log('Beneficiaires chargés:', data);

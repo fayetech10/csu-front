@@ -93,7 +93,7 @@
                 <span class="text-xs text-gray-600 whitespace-nowrap">{{ b.agent_collect }}</span>
               </div>
             </td>
-            <td><span class="pill pill-gray">{{ b.beneficiare }}</span></td>
+            <td><span [class]="beneficiaireClass(b)">{{ b.beneficiare }}</span></td>
             <td class="font-medium">{{ b.prenoms }}</td>
             <td class="font-semibold text-gray-800">{{ b.noms }}</td>
             <td class="font-mono text-xs text-gray-500">{{ b.dateNaissance }}</td>
