@@ -1,19 +1,83 @@
-<div class="page-anim">
-  <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Enrolement mensuel</h1>
-    <p class="text-sm text-gray-400 mt-1">Statistiques d'enrolement mensuel des nouveaux beneficiaires.</p>
+<div *ngIf="loading" class="flex items-center justify-center h-64">
+  <div class="flex flex-col items-center gap-3">
+    <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+    <p class="text-sm text-gray-400">Chargement...</p>
   </div>
-  <div class="card flex flex-col items-center justify-center py-24 gap-5 text-center px-8">
-    <div class="w-20 h-20 bg-sencsu-green-light rounded-2xl flex items-center justify-center text-4xl">
-      📅
+</div>
+
+<div *ngIf="!loading" class="page-anim space-y-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Enrôlement mensuel</h1>
+    <p class="text-sm text-gray-400 mt-1">Statistiques d'enrôlement mensuel des nouveaux bénéficiaires — Exercice 2025
+    </p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <app-stat-card label="Total enrôlés" [value]="total" icon="👥" trend="—" sub="bénéficiaires" color="green" />
+    <app-stat-card label="Mois le plus actif" [value]="moisMaxCount" icon="🔥" [trend]="moisMax" sub="meilleur mois"
+      color="red" />
+    <app-stat-card label="Moyenne mensuelle" [value]="moyenneMensuelle" icon="📊" trend="/mois" sub="enrôlements"
+      color="blue" />
+    <app-stat-card label="Mois couverts" [value]="12" icon="📅" trend="mois" sub="année complète" color="yellow" />
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Enrôlements mensuels + cumul</p>
+      <p class="text-xs text-gray-400 mb-4">Barres : nouveaux / Ligne : total cumulé</p>
+      <canvas id="chartEnrolMensuel" height="160"></canvas>
     </div>
-    <div>
-      <h2 class="text-lg font-bold text-gray-700">Enrolement mensuel</h2>
-      <p class="text-sm text-gray-400 mt-1.5 max-w-sm">Statistiques d'enrolement mensuel des nouveaux beneficiaires.</p>
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Progression cumulée</p>
+      <p class="text-xs text-gray-400 mb-4">Croissance du nombre total de bénéficiaires</p>
+      <canvas id="chartEnrolCumul" height="160"></canvas>
     </div>
-    <span class="inline-flex items-center gap-2 bg-sencsu-green-light text-sencsu-green-dark text-xs font-semibold px-4 py-2 rounded-full">
-      <span class="w-2 h-2 rounded-full bg-sencsu-green animate-pulse inline-block"></span>
-      En cours de developpement
-    </span>
+  </div>
+
+  <!-- Table -->
+  <div class="card overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span>📅</span>
+        <h2 class="text-sm font-bold text-gray-800">Détail mois par mois</h2>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th>Mois</th>
+            <th>Nouveaux</th>
+            <th>Cumul</th>
+            <th>Variation</th>
+            <th>Progression</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of mensuel">
+            <td class="font-semibold text-gray-800">{{ m.mois }}</td>
+            <td><strong>{{ m.count | number }}</strong></td>
+            <td class="text-gray-600">{{ m.cumul | number }}</td>
+            <td>
+              <span
+                [class]="m.variation.startsWith('-') ? 'pill pill-red' : m.variation === '—' ? 'pill pill-gray' : 'pill pill-green'">{{
+                m.variation }}</span>
+            </td>
+            <td class="min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sencsu-green to-sencsu-green-mid rounded-full"
+                    [style.width.%]="total ? (m.cumul * 100 / total) : 0"></div>
+                </div>
+                <span class="text-xs text-gray-400 w-10 text-right">{{ total ? (m.cumul * 100 / total | number:'1.0-0')
+                  : 0 }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

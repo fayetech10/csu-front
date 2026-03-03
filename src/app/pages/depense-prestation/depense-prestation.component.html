@@ -1,19 +1,120 @@
-<div class="page-anim">
-  <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Depense de prestation</h1>
-    <p class="text-sm text-gray-400 mt-1">Suivi et analyse des depenses liees aux prestations de sante.</p>
+<div *ngIf="loading" class="flex items-center justify-center h-64">
+  <div class="flex flex-col items-center gap-3">
+    <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+    <p class="text-sm text-gray-400">Chargement...</p>
   </div>
-  <div class="card flex flex-col items-center justify-center py-24 gap-5 text-center px-8">
-    <div class="w-20 h-20 bg-sencsu-green-light rounded-2xl flex items-center justify-center text-4xl">
-      💰
+</div>
+
+<div *ngIf="!loading" class="page-anim space-y-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Dépenses de prestation</h1>
+    <p class="text-sm text-gray-400 mt-1">Suivi et analyse des dépenses liées aux prestations de santé</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <app-stat-card label="Dépenses totales" [value]="totalDepenses" icon="💰" trend="FCFA" sub="budget global"
+      color="green" />
+    <app-stat-card label="Moyenne / bénéf." [value]="moyenneParBenef" icon="📊" trend="FCFA" sub="par personne"
+      color="blue" />
+    <app-stat-card label="Catégories" [value]="categories.length" icon="📋" trend="types" sub="de prestations"
+      color="yellow" />
+    <app-stat-card label="Bénéficiaires" [value]="totalBenef" icon="👥" trend="—" sub="population couverte"
+      color="red" />
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <div class="card p-5">
+      <p class="text-sm font-bold text-gray-800">Répartition par catégorie</p>
+      <p class="text-xs text-gray-400 mb-4">Distribution des dépenses</p>
+      <canvas id="chartDepenseCat" height="200"></canvas>
     </div>
-    <div>
-      <h2 class="text-lg font-bold text-gray-700">Depense de prestation</h2>
-      <p class="text-sm text-gray-400 mt-1.5 max-w-sm">Suivi et analyse des depenses liees aux prestations de sante.</p>
+    <div class="card p-5 xl:col-span-2">
+      <p class="text-sm font-bold text-gray-800">Évolution mensuelle</p>
+      <p class="text-xs text-gray-400 mb-4">Dépenses par mois — Exercice 2025</p>
+      <canvas id="chartDepenseMensuel" height="85"></canvas>
     </div>
-    <span class="inline-flex items-center gap-2 bg-sencsu-green-light text-sencsu-green-dark text-xs font-semibold px-4 py-2 rounded-full">
-      <span class="w-2 h-2 rounded-full bg-sencsu-green animate-pulse inline-block"></span>
-      En cours de developpement
-    </span>
+  </div>
+
+  <!-- Table par catégorie -->
+  <div class="card overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span>💰</span>
+        <h2 class="text-sm font-bold text-gray-800">Détail des dépenses par catégorie</h2>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Catégorie</th>
+            <th>Montant (FCFA)</th>
+            <th>Part</th>
+            <th>Répartition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of categories; let i = index">
+            <td class="text-gray-400 font-mono text-xs">{{ i + 1 }}</td>
+            <td>
+              <div class="flex items-center gap-2">
+                <span>{{ c.icon }}</span>
+                <span class="font-semibold text-gray-800">{{ c.categorie }}</span>
+              </div>
+            </td>
+            <td><strong>{{ c.montant | number }}</strong></td>
+            <td><span class="pill pill-green">{{ c.pct }}%</span></td>
+            <td class="min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sencsu-green to-sencsu-green-mid rounded-full"
+                    [style.width.%]="c.pct"></div>
+                </div>
+                <span class="text-xs text-gray-400 w-10 text-right">{{ formatMontant(c.montant) }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Table mensuelle -->
+  <div class="card overflow-hidden">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span>📅</span>
+        <h2 class="text-sm font-bold text-gray-800">Détail mensuel</h2>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th>Mois</th>
+            <th>Montant (FCFA)</th>
+            <th>Répartition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of mensuel">
+            <td class="font-semibold text-gray-800">{{ m.mois }}</td>
+            <td><strong>{{ m.montant | number }}</strong></td>
+            <td class="min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sencsu-green to-sencsu-green-mid rounded-full"
+                    [style.width.%]="(m.montant * 100 / totalDepenses * 12)"></div>
+                </div>
+                <span class="text-xs text-gray-400 w-14 text-right">{{ formatMontant(m.montant) }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

@@ -34,8 +34,8 @@ export interface Adherent {
   montantTotal: number;
   numeroCNi: string;
   photo: string;
-  agent: Agent;
-personnesCharge: PersonneCharge[];
+  agent?: Agent;
+  personnesCharge: PersonneCharge[];
   createdAt: string;
 }
 export interface Agent {

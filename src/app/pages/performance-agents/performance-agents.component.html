@@ -1,19 +1,81 @@
-<div class="page-anim">
-  <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Performance des agents</h1>
-    <p class="text-sm text-gray-400 mt-1">Evaluation et suivi des performances des agents de collecte.</p>
+<div *ngIf="loading" class="flex items-center justify-center h-64">
+  <div class="flex flex-col items-center gap-3">
+    <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+    <p class="text-sm text-gray-400">Chargement...</p>
   </div>
-  <div class="card flex flex-col items-center justify-center py-24 gap-5 text-center px-8">
-    <div class="w-20 h-20 bg-sencsu-green-light rounded-2xl flex items-center justify-center text-4xl">
-      ⭐
+</div>
+
+<div *ngIf="!loading" class="page-anim space-y-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Performance des agents</h1>
+    <p class="text-sm text-gray-400 mt-1">Évaluation et suivi des performances des agents de collecte</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4" *ngIf="agents.length > 0">
+    <app-stat-card label="Total bénéficiaires" [value]="totalBenef" icon="👥" trend="—" sub="enrôlés" color="green" />
+    <app-stat-card label="Nombre d'agents" [value]="totalAgents" icon="👤" trend="—" sub="actifs" color="blue" />
+    <app-stat-card label="Moyenne / agent" [value]="moyenneParAgent" icon="📊" trend="bénéf." sub="par agent"
+      color="yellow" />
+    <app-stat-card label="Meilleur agent" [value]="agents[0].total" icon="⭐" [trend]="topAgent" sub="1er du classement"
+      color="green" />
+  </div>
+
+  <!-- Chart Top 10 -->
+  <div class="card p-5">
+    <p class="text-sm font-bold text-gray-800">Top 10 des agents</p>
+    <p class="text-xs text-gray-400 mb-4">Répartition Hommes / Femmes par agent</p>
+    <canvas id="chartAgents" height="85"></canvas>
+  </div>
+
+  <!-- Table complète -->
+  <div class="card overflow-hidden" *ngIf="agents.length > 0">
+    <div class="px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span>⭐</span>
+        <h2 class="text-sm font-bold text-gray-800">Classement complet des agents</h2>
+      </div>
     </div>
-    <div>
-      <h2 class="text-lg font-bold text-gray-700">Performance des agents</h2>
-      <p class="text-sm text-gray-400 mt-1.5 max-w-sm">Evaluation et suivi des performances des agents de collecte.</p>
+    <div class="overflow-x-auto">
+      <table class="w-full tbl">
+        <thead>
+          <tr>
+            <th>Rang</th>
+            <th>Agent</th>
+            <th>Total</th>
+            <th>Hommes</th>
+            <th>Femmes</th>
+            <th>Communes</th>
+            <th>Part</th>
+            <th>Performance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of agents; let i = index">
+            <td>
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+                [ngClass]="medalClass(i)">
+                {{ medalIcon(i) }}
+              </div>
+            </td>
+            <td class="font-semibold text-gray-800">{{ a.agent }}</td>
+            <td><strong>{{ a.total | number }}</strong></td>
+            <td class="text-blue-600">{{ a.hommes | number }}</td>
+            <td class="text-red-500">{{ a.femmes | number }}</td>
+            <td>{{ a.communes }}</td>
+            <td><span class="pill pill-green">{{ a.pct }}%</span></td>
+            <td class="min-w-[140px]">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-sencsu-green to-sencsu-green-mid rounded-full"
+                    [style.width.%]="a.pct * 100 / agents[0].pct"></div>
+                </div>
+                <span class="text-xs text-gray-400 w-8 text-right">{{ a.pct }}%</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <span class="inline-flex items-center gap-2 bg-sencsu-green-light text-sencsu-green-dark text-xs font-semibold px-4 py-2 rounded-full">
-      <span class="w-2 h-2 rounded-full bg-sencsu-green animate-pulse inline-block"></span>
-      En cours de developpement
-    </span>
   </div>
 </div>

@@ -14,19 +14,20 @@ export class TopbarComponent implements OnInit {
   today = '';
 
   private titles: Record<string, string> = {
-    '/dashboard':           'Tableau de bord',
-    '/beneficiaires':       'Beneficiaires',
-    '/type-beneficiaire':   'Type de beneficiaire',
-    '/tranche-age':         "Tranche d'age",
-    '/prestation':          'Prestation',
-    '/depense-prestation':  'Depense de prestation',
-    '/suivi-couverture':    'Suivi de couverture',
+    '/dashboard': 'Tableau de bord',
+    '/beneficiaires': 'Beneficiaires',
+    '/type-beneficiaire': 'Type de beneficiaire',
+    '/tranche-age': "Tranche d'age",
+    '/prestation': 'Prestation',
+    '/depense-prestation': 'Depense de prestation',
+    '/suivi-couverture': 'Suivi de couverture',
     '/enroulement-mensuel': 'Enrolement mensuel',
-    '/performance-agents':  'Performance des agents',
-    '/classement':          'Classement'
+    '/performance-agents': 'Performance des agents',
+    '/classement': 'Classement',
+    '/enrolement': 'Enrolements'
   };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   ngOnInit() {
     this.today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });

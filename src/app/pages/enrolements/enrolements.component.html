@@ -32,6 +32,12 @@
       >
         Filtrer
       </button>
+      <button
+        class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition duration-200"
+        (click)="resetFilters()"
+      >
+        Réinitialiser
+      </button>
     </div>
   </div>
 
@@ -62,7 +68,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let a of adherents" class="hover:bg-gray-50 transition duration-150">
+          <tr *ngFor="let a of filteredAdherents" class="hover:bg-gray-50 transition duration-150">
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ a.prenoms }} {{ a.nom }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ a.sexe }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ a.region }} / {{ a.departement }} / {{ a.commune }}</td>

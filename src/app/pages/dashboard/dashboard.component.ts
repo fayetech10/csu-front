@@ -169,7 +169,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // chartCarte
   const cartes = [
     { statut: 'Remise', count: data.filter(b => b.carteAssure === 'Remise').length },
-    { statut: 'Non remise', count: data.filter(b => b.carteAssure !== 'Remise').length }
+    { statut: 'En instance', count: data.filter(b => b.carteAssure === 'En instance').length }
   ];
   mk('chartCarte', {
     type: 'doughnut',
