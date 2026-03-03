@@ -28,11 +28,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private _charts: Chart[] = [];
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) {}
+  constructor(private svc: BeneficiaireService) { }
 
   ngOnInit() {
     this.loading = true;
-    this.svc.getBeneficiaires(0, 1000) // prend toutes les données
+    this.svc.getBeneficiaires(0, 100000) // prend toutes les données
       .subscribe(res => {
         const data = res.data; // <-- tes Beneficiaires
         console.log('Beneficiaires chargés:', data);
@@ -151,54 +151,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
       options: { ...base, cutout: '65%' }
     });
 
-  // chartType
-  const types = [
-    { type: 'Classique', count: data.filter(b => b.typeBenef === 'Classique').length },
-    { type: 'Dara', count: data.filter(b => b.typeBenef === 'Dara').length }
-  ];
-  const Y = '#f39c12';
-  mk('chartType', {
-    type: 'pie',
-    data: {
-      labels: types.map(t => t.type),
-      datasets: [{ data: types.map(t => t.count), backgroundColor: [G, Y] }]
-    },
-    options: base
-  });
+    // chartType
+    const types = [
+      { type: 'Classique', count: data.filter(b => b.typeBenef === 'Classique').length },
+      { type: 'Dara', count: data.filter(b => b.typeBenef === 'Dara').length }
+    ];
+    const Y = '#f39c12';
+    mk('chartType', {
+      type: 'pie',
+      data: {
+        labels: types.map(t => t.type),
+        datasets: [{ data: types.map(t => t.count), backgroundColor: [G, Y] }]
+      },
+      options: base
+    });
 
-  // chartCarte
-  const cartes = [
-    { statut: 'Remise', count: data.filter(b => b.carteAssure === 'Remise').length },
-    { statut: 'En instance', count: data.filter(b => b.carteAssure === 'En instance').length }
-  ];
-  mk('chartCarte', {
-    type: 'doughnut',
-    data: {
-      labels: cartes.map(c => c.statut),
-      datasets: [{ data: cartes.map(c => c.count), backgroundColor: [G, B] }]
-    },
-    options: { ...base, cutout: '60%' }
-  });
+    // chartCarte
+    const cartes = [
+      { statut: 'Remise', count: data.filter(b => b.carteAssure === 'Carte remise').length },
+      { statut: 'En instance', count: data.filter(b => b.carteAssure === 'En instance').length }
+    ];
+    mk('chartCarte', {
+      type: 'doughnut',
+      data: {
+        labels: cartes.map(c => c.statut),
+        datasets: [{ data: cartes.map(c => c.count), backgroundColor: [G, B] }]
+      },
+      options: { ...base, cutout: '60%' }
+    });
 
-  // chartMensuel
-  const moisLabels = ['Jan','Fev','Mar','Avr','Mai','Juin','Juil','Aout','Sep','Oct','Nov','Dec'];
-  const mensuel = moisLabels.map((m, i) => ({
-    mois: m,
-    count: data.filter(b => new Date(b.dateCotisation).getMonth() === i).length
-  }));
-  mk('chartMensuel', {
-    type: 'line',
-    data: {
-      labels: mensuel.map(m => m.mois),
-      datasets: [{
-        data: mensuel.map(m => m.count),
-        borderColor: G,
-        backgroundColor: GL,
-        fill: true,
-        tension: 0.4
-      }]
-    },
-    options: { ...base, plugins: { legend: { display: false } } }
-  });
+    // chartMensuel
+    const moisLabels = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const mensuel = moisLabels.map((m, i) => ({
+      mois: m,
+      count: data.filter(b => new Date(b.dateCotisation).getMonth() === i).length
+    }));
+    mk('chartMensuel', {
+      type: 'line',
+      data: {
+        labels: mensuel.map(m => m.mois),
+        datasets: [{
+          data: mensuel.map(m => m.count),
+          borderColor: G,
+          backgroundColor: GL,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: { ...base, plugins: { legend: { display: false } } }
+    });
   }
 }

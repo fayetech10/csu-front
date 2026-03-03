@@ -13,7 +13,7 @@ export class BeneficiaireService {
   private readonly apiUrl = 'http://localhost:8080/api'; 
 
 
-   getBeneficiaires(page = 0, size = 100): Observable<PageResult<Beneficiaire>> {
+   getBeneficiaires(page = 0, size = 10000): Observable<PageResult<Beneficiaire>> {
 
     const params = new HttpParams()
       .set('page', page)

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { SidebarService } from '../../../core/services/sidebar.service';
 
 @Component({
   selector: 'app-topbar',
@@ -15,19 +16,26 @@ export class TopbarComponent implements OnInit {
 
   private titles: Record<string, string> = {
     '/dashboard': 'Tableau de bord',
-    '/beneficiaires': 'Beneficiaires',
-    '/type-beneficiaire': 'Type de beneficiaire',
-    '/tranche-age': "Tranche d'age",
+    '/beneficiaires': 'Bénéficiaires',
+    '/type-beneficiaire': 'Type de bénéficiaire',
+    '/tranche-age': "Tranche d'âge",
     '/prestation': 'Prestation',
-    '/depense-prestation': 'Depense de prestation',
+    '/depense-prestation': 'Dépense de prestation',
     '/suivi-couverture': 'Suivi de couverture',
-    '/enroulement-mensuel': 'Enrolement mensuel',
+    '/enroulement-mensuel': 'Enrôlement mensuel',
     '/performance-agents': 'Performance des agents',
     '/classement': 'Classement',
-    '/enrolement': 'Enrolements'
+    '/enrolements': 'Enrôlements'
   };
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private sidebarService: SidebarService
+  ) { }
+
+  toggleSidebar() {
+    this.sidebarService.toggle();
+  }
 
   ngOnInit() {
     this.today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });

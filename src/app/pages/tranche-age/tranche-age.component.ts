@@ -47,7 +47,7 @@ export class TrancheAgeComponent implements OnInit, OnDestroy {
   constructor(private svc: BeneficiaireService) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 1000)
+    this.svc.getBeneficiaires(0, 50000)
       .pipe(takeUntil(this._destroy$))
       .subscribe(res => {
         const data = res.data;
