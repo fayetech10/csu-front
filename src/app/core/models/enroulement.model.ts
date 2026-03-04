@@ -29,11 +29,15 @@ export interface Adherent {
   typeBenef: string;
   typeAdhesion: string;
   dateNaissance: string;
+  lieuNaissance?: string;
   whatsapp: string;
   adresse: string;
   montantTotal: number;
   numeroCNi: string;
+  typePiece?: string;
   photo: string;
+  photoRecto?: string;
+  photoVerso?: string;
   agent?: Agent;
   personnesCharge: PersonneCharge[];
   createdAt: string;

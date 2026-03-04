@@ -11,9 +11,17 @@
       <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Gestion des enrôlements</h1>
       <p class="text-xs md:text-sm text-gray-400 mt-1">Suivi des adhésions et statistiques d'enrôlement</p>
     </div>
-    <button class="btn-primary flex items-center justify-center gap-2 w-full sm:w-auto" (click)="openAddModal()">
-      <span class="text-lg">+</span> Nouveau
-    </button>
+    <div class="flex items-center gap-3 w-full sm:w-auto">
+      <button
+        class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-xs md:text-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer w-full sm:w-auto"
+        (click)="openGalleryModal()">
+        <span>📸</span> Galerie
+      </button>
+      <button class="btn-primary flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+        (click)="openAddModal()">
+        <span class="text-lg">+</span> Nouveau
+      </button>
+    </div>
   </div>
 
   <!-- Export Section -->
@@ -56,9 +64,11 @@
     <app-stat-card label="Total enrôlés" [value]="totalEnroles" icon="👥" trend="Adhérents" sub="Total global"
       color="green" />
     <app-stat-card label="Montant Total" [value]="montantTotal" icon="💰" trend="FCFA" sub="Recettes" color="blue" />
-    <app-stat-card label="Régime A" [value]="regimeA" icon="🛡️" trend="Bénéf." sub="Type Classique" color="yellow" />
-    <app-stat-card label="Régime B" [value]="regimeB" icon="🏠" trend="Bénéf." sub="Type Dara" color="red" />
+    <app-stat-card label="Régime CONTRIBUTIF" [value]="regimeContributif" icon="🛡️" trend="Bénéf." sub="Cotisants"
+      color="yellow" />
+    <app-stat-card label="Régime CMU-G" [value]="regimeCMUG" icon="🏠" trend="Bénéf." sub="Gratuité" color="blue" />
   </div>
+
 
   <!-- Charts Section -->
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -95,8 +105,8 @@
         <label class="text-[10px] font-bold text-gray-500 mb-1 block uppercase">Régime</label>
         <select class="form-ctrl w-full text-xs md:text-sm" [(ngModel)]="filters.regime" (change)="applyFilters()">
           <option value="">Tous</option>
-          <option value="A">Régime A</option>
-          <option value="B">Régime B</option>
+          <option value="CONTRIBUTIF">Régime CONTRIBUTIF</option>
+          <option value="CMU-G">Régime CMU-G</option>
         </select>
       </div>
       <div class="flex gap-2">
@@ -140,7 +150,7 @@
               <div class="flex items-center gap-3">
                 <div
                   class="w-8 h-8 md:w-9 md:h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 font-bold overflow-hidden border border-gray-100 shadow-sm transition-all group-hover:border-sencsu-green/30">
-                  <img *ngIf="a.photo" [src]="a.photo" class="w-full h-full object-cover">
+                  <img *ngIf="a.photo" [src]="getPhotoUrl(a.photo)" class="w-full h-full object-cover">
                   <span *ngIf="!a.photo" class="text-[10px] md:text-xs">{{ a.nom[0] }}{{ a.prenoms[0] }}</span>
                 </div>
                 <div>
@@ -165,10 +175,9 @@
             </td>
             <td class="hidden md:table-cell">
               <span class="pill scale-90 origin-left" [ngClass]="{
-                'pill-green': a.regime === 'A',
-                'pill-blue': a.regime === 'B',
-                'pill-yellow': a.regime === 'C'
-              }">Régime {{ a.regime }}</span>
+                'pill-green': a.regime === 'CONTRIBUTIF',
+                'pill-blue': a.regime === 'CMU-G'
+              }">{{ a.regime }}</span>
             </td>
             <td>
               <div class="font-mono text-[10px] md:text-xs font-bold text-gray-900">{{ a.montantTotal | number }} <span
@@ -245,8 +254,10 @@
     <div class="px-6 sm:px-8 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
       <div class="flex items-center gap-3 sm:gap-4">
         <div
-          class="w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 overflow-hidden">
-          <img *ngIf="selectedAdherent.photo" [src]="selectedAdherent.photo" class="w-full h-full object-cover">
+          class="w-10 h-10 sm:w-14 sm:h-14 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:opacity-80"
+          (click)="zoomPhoto(selectedAdherent.photo)">
+          <img *ngIf="selectedAdherent.photo" [src]="getPhotoUrl(selectedAdherent.photo)"
+            class="w-full h-full object-cover">
           <span *ngIf="!selectedAdherent.photo" class="text-sm sm:text-xl font-bold text-sencsu-green">{{
             selectedAdherent.nom[0] }}</span>
         </div>
@@ -284,6 +295,23 @@
             <div>
               <p class="text-[8px] sm:text-[10px] text-gray-400 font-bold uppercase">WhatsApp / Contact</p>
               <p class="text-xs sm:text-sm font-semibold text-gray-800">{{ selectedAdherent.whatsapp }}</p>
+            </div>
+            <!-- Nouveau: Documents Justificatifs -->
+            <div *ngIf="selectedAdherent.photoRecto || selectedAdherent.photoVerso"
+              class="pt-2 border-t border-gray-100">
+              <p class="text-[8px] sm:text-[10px] text-gray-400 font-bold uppercase mb-2">Documents Justificatifs</p>
+              <div class="flex gap-2">
+                <div *ngIf="selectedAdherent.photoRecto"
+                  class="w-16 h-10 bg-white rounded-lg border border-gray-100 overflow-hidden cursor-pointer hover:border-sencsu-green transition-all shadow-sm"
+                  (click)="zoomPhoto(selectedAdherent.photoRecto)">
+                  <img [src]="getPhotoUrl(selectedAdherent.photoRecto)" class="w-full h-full object-cover">
+                </div>
+                <div *ngIf="selectedAdherent.photoVerso"
+                  class="w-16 h-10 bg-white rounded-lg border border-gray-100 overflow-hidden cursor-pointer hover:border-sencsu-green transition-all shadow-sm"
+                  (click)="zoomPhoto(selectedAdherent.photoVerso)">
+                  <img [src]="getPhotoUrl(selectedAdherent.photoVerso)" class="w-full h-full object-cover">
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -352,8 +380,9 @@
                 <tr *ngFor="let pc of selectedAdherent.personnesCharge">
                   <td>
                     <div
-                      class="w-7 h-7 sm:w-9 sm:h-9 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 font-bold overflow-hidden border border-gray-100">
-                      <img *ngIf="pc.photo" [src]="pc.photo" class="w-full h-full object-cover">
+                      class="w-7 h-7 sm:w-9 sm:h-9 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 font-bold overflow-hidden border border-gray-100 cursor-pointer hover:opacity-80"
+                      (click)="zoomPhoto(pc.photo!)">
+                      <img *ngIf="pc.photo" [src]="getPhotoUrl(pc.photo)" class="w-full h-full object-cover">
                       <span *ngIf="!pc.photo" class="text-[10px]">{{ pc.nom[0] }}</span>
                     </div>
                   </td>
@@ -364,12 +393,14 @@
                   <td>
                     <div class="flex justify-center gap-1">
                       <div *ngIf="pc.photoRecto"
-                        class="w-6 h-4 bg-gray-100 rounded border border-gray-200 overflow-hidden">
-                        <img [src]="pc.photoRecto" class="w-full h-full object-cover">
+                        class="w-6 h-4 bg-gray-100 rounded border border-gray-200 overflow-hidden cursor-pointer hover:border-sencsu-green"
+                        (click)="zoomPhoto(pc.photoRecto)">
+                        <img [src]="getPhotoUrl(pc.photoRecto)" class="w-full h-full object-cover">
                       </div>
                       <div *ngIf="pc.photoVerso"
-                        class="w-6 h-4 bg-gray-100 rounded border border-gray-200 overflow-hidden">
-                        <img [src]="pc.photoVerso" class="w-full h-full object-cover">
+                        class="w-6 h-4 bg-gray-100 rounded border border-gray-200 overflow-hidden cursor-pointer hover:border-sencsu-green"
+                        (click)="zoomPhoto(pc.photoVerso)">
+                        <img [src]="getPhotoUrl(pc.photoVerso)" class="w-full h-full object-cover">
                       </div>
                     </div>
                   </td>
@@ -400,7 +431,9 @@
     <div class="px-6 sm:px-8 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
       <div class="flex items-center gap-3">
         <span class="text-xl sm:text-2xl">📝</span>
-        <h2 class="text-sm sm:text-xl font-extrabold text-gray-900 leading-tight">Nouvel Enrôlement</h2>
+        <h2 class="text-sm sm:text-xl font-extrabold text-gray-900 leading-tight">
+          {{ isEditing ? 'Modifier l\'Enrôlement' : 'Nouvel Enrôlement' }}
+        </h2>
       </div>
       <button
         class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-all border-0 bg-transparent cursor-pointer"
@@ -459,8 +492,8 @@
           <div>
             <label class="lbl-form text-[10px] md:text-xs">Régime *</label>
             <select formControlName="regime" class="form-ctrl w-full text-xs md:text-sm">
-              <option value="A">Régime A</option>
-              <option value="B">Régime B</option>
+              <option value="CONTRIBUTIF">Régime CONTRIBUTIF</option>
+              <option value="CMU-G">Régime CMU-G</option>
             </select>
           </div>
         </div>
@@ -487,12 +520,61 @@
               class="absolute top-3 right-3 w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center border-0 cursor-pointer hover:bg-red-500 hover:text-white transition-all">✕</button>
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <div class="sm:col-span-2">
-                <label class="lbl-form text-[10px]">Prénoms *</label>
+                <label class="lbl-form text-[11px]">Prénoms *</label>
                 <input type="text" formControlName="prenoms" class="form-ctrl w-full text-xs">
               </div>
               <div class="sm:col-span-2">
-                <label class="lbl-form text-[10px]">Nom *</label>
+                <label class="lbl-form text-[11px]">Nom *</label>
                 <input type="text" formControlName="nom" class="form-ctrl w-full text-xs">
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">Sexe *</label>
+                <select formControlName="sexe" class="form-ctrl w-full text-xs">
+                  <option value="Homme">Homme</option>
+                  <option value="Femme">Femme</option>
+                </select>
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">Date Naissance *</label>
+                <input type="date" formControlName="dateNaissance" class="form-ctrl w-full text-xs">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="lbl-form text-[11px]">Lieu Naissance *</label>
+                <input type="text" formControlName="lieuNaissance" class="form-ctrl w-full text-xs">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="lbl-form text-[11px]">Adresse *</label>
+                <input type="text" formControlName="adresse" class="form-ctrl w-full text-xs">
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">WhatsApp</label>
+                <input type="text" formControlName="whatsapp" class="form-ctrl w-full text-xs">
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">Lien Parenté *</label>
+                <select formControlName="lienParent" class="form-ctrl w-full text-xs">
+                  <option value="Conjoint">Conjoint(e)</option>
+                  <option value="Enfant">Enfant</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">Situation M. *</label>
+                <select formControlName="situationM" class="form-ctrl w-full text-xs">
+                  <option value="Célibataire">Célibataire</option>
+                  <option value="Marié(e)">Marié(e)</option>
+                  <option value="Veuf(ve)">Veuf(ve)</option>
+                  <option value="Divorcé(e)">Divorcé(e)</option>
+                </select>
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">N° CNI (si dispo)</label>
+                <input type="text" formControlName="numeroCNi" class="form-ctrl w-full text-xs">
+              </div>
+              <div>
+                <label class="lbl-form text-[11px]">N° Extrait</label>
+                <input type="text" formControlName="numeroExtrait" class="form-ctrl w-full text-xs">
               </div>
             </div>
           </div>
@@ -513,8 +595,113 @@
           class="btn-secondary w-1/2 sm:w-auto text-xs py-2.5 px-6 border-0 bg-transparent font-bold text-gray-500 cursor-pointer"
           (click)="closeAddModal()">Annuler</button>
         <button type="button" class="btn-primary w-1/2 sm:w-auto text-xs py-2.5 px-10 shadow-lg shadow-sencsu-green/20"
-          (click)="submitForm()" [disabled]="addForm.invalid">Enregistrer</button>
+          (click)="submitForm()" [disabled]="addForm.invalid">
+          {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Photo Visualization Modal -->
+<div *ngIf="showPhotoModal && selectedPhoto" class="fixed inset-0 z-[300] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-sm animate-fade-in" (click)="closePhotoModal()"></div>
+  <div class="relative w-full max-w-4xl max-h-[90vh] flex flex-col items-center animate-scale-up">
+    <button
+      class="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all border-0 cursor-pointer"
+      (click)="closePhotoModal()">
+      <span>✕</span>
+    </button>
+    <div class="bg-white p-2 rounded-3xl shadow-2xl overflow-hidden w-full h-full flex items-center justify-center">
+      <img [src]="getPhotoUrl(selectedPhoto.filename)" class="max-w-full max-h-[80vh] object-contain rounded-2xl">
+    </div>
+    <div class="mt-4 text-center">
+      <p class="text-white font-bold text-sm">{{ selectedPhoto.filename }}</p>
+      <p class="text-white/60 text-xs">{{ selectedPhoto.size / 1024 | number:'1.0-1' }} KB • {{
+        selectedPhoto.lastModified | date:'medium' }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Modal -->
+<div *ngIf="showGalleryModal" class="fixed inset-0 z-[250] flex items-center justify-center p-0 sm:p-6">
+  <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-fade-in" (click)="closeGalleryModal()"></div>
+  <div
+    class="relative bg-white w-full max-w-6xl h-full sm:h-auto sm:max-h-[85vh] sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col page-anim">
+    <!-- Header -->
+    <div class="px-6 py-4 sm:py-6 border-b border-gray-100 bg-gray-50/50">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <span class="text-xl sm:text-2xl">📸</span>
+          <div>
+            <h2 class="text-sm sm:text-lg font-extrabold text-gray-900 leading-tight">Galerie des Photos</h2>
+            <p class="text-[10px] text-gray-400">Total: {{ photos.length }} photos • {{ filteredPhotosList.length }}
+              filtrées</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            class="bg-sencsu-green hover:bg-sencsu-green/90 text-white font-bold py-2 px-4 rounded-xl text-[10px] flex items-center justify-center gap-2 disabled:opacity-50 border-0 cursor-pointer shadow-lg shadow-sencsu-green/20"
+            (click)="downloadPhotosZip()" [disabled]="downloadingPhotos">
+            <span *ngIf="!downloadingPhotos">📦 ZIP</span>
+            <span *ngIf="downloadingPhotos" class="animate-spin">⌛</span>
+          </button>
+
+          <button
+            class="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center text-gray-400 transition-all border-0 bg-transparent cursor-pointer"
+            (click)="closeGalleryModal()">
+            <span>✕</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Integrated Filters -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button *ngFor="let type of ['all', 'profile', 'recto', 'verso']"
+          class="px-5 py-2 rounded-xl text-[10px] font-bold transition-all border-0 cursor-pointer whitespace-nowrap shadow-sm"
+          [ngClass]="selectedPhotoType === type ? 'bg-sencsu-green text-white shadow-sencsu-green/20' : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-100'"
+          (click)="selectedPhotoType = type">
+          {{ type === 'all' ? 'Toutes les photos' : type === 'profile' ? 'Photos Profil' : type === 'recto' ? 'Cartes
+          Recto' : 'Cartes Verso' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <div *ngIf="loadingPhotos" class="flex flex-col items-center justify-center py-20 gap-3">
+        <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+        <p class="text-xs text-gray-400">Chargement des images...</p>
+      </div>
+
+      <div *ngIf="!loadingPhotos && filteredPhotosList.length === 0"
+        class="py-20 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-100">
+        <p class="text-sm text-gray-400 italic">Aucune photo trouvée pour ce filtre.</p>
+      </div>
+
+      <div *ngIf="!loadingPhotos && filteredPhotosList.length > 0"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <div *ngFor="let photo of filteredPhotosList"
+          class="group relative aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 cursor-pointer hover:border-sencsu-green/50 transition-all shadow-md"
+          (click)="openPhotoModal(photo)">
+          <img [src]="getPhotoUrl(photo.filename)"
+            class="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy">
+          <div
+            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span
+              class="inline-block px-1.5 py-0.5 rounded bg-white/20 backdrop-blur-md text-[7px] text-white font-bold uppercase mb-1">{{
+              photo.type }}</span>
+            <p class="text-[9px] text-white font-bold truncate">{{ photo.filename }}</p>
+            <p class="text-[8px] text-white/70">{{ photo.size / 1024 | number:'1.0-1' }} KB</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end">
+      <button class="btn-primary" (click)="closeGalleryModal()">Fermer la galerie</button>
     </div>
   </div>
 </div>

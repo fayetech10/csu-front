@@ -3,6 +3,7 @@ import { NgIf } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { SidebarService } from '../../../core/services/sidebar.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -30,8 +31,13 @@ export class TopbarComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    public authService: AuthService
   ) { }
+
+  logout() {
+    this.authService.logout();
+  }
 
   toggleSidebar() {
     this.sidebarService.toggle();

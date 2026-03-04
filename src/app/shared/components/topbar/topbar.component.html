@@ -23,14 +23,28 @@
     <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full border-2 border-white"></span>
   </button>
 
-  <div class="flex items-center gap-2 cursor-pointer group">
-    <div
-      class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-sencsu-green to-sencsu-green-mid flex items-center justify-center text-white text-[10px] md:text-xs font-bold shadow-sm group-hover:scale-105 transition-transform">
-      AD
-    </div>
-    <div class="hidden sm:block leading-tight">
-      <p class="text-[10px] md:text-xs font-semibold text-gray-700">Admin SENCSU</p>
-      <p class="text-[8px] md:text-[10px] text-gray-400">Administrateur</p>
+  <div class="flex items-center gap-3 md:gap-4 pl-2">
+    <button
+      class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-100 rounded-xl transition-all border-0 cursor-pointer shadow-sm shadow-red-500/5 group"
+      title="Déconnexion" (click)="logout()">
+      <span class="text-xs group-hover:scale-110 transition-transform">🚪</span>
+    </button>
+
+    <div class="flex items-center gap-2 cursor-pointer group">
+      <div
+        class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-sencsu-green to-sencsu-green-mid flex items-center justify-center text-white text-[10px] md:text-xs font-bold shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+        <img *ngIf="authService.currentUser()?.photo" [src]="authService.currentUser()?.photo"
+          class="w-full h-full object-cover">
+        <span *ngIf="!authService.currentUser()?.photo">{{ authService.currentUser()?.nom?.[0] }}{{
+          authService.currentUser()?.prenoms?.[0] }}</span>
+      </div>
+      <div class="hidden sm:block leading-tight">
+        <p class="text-[10px] md:text-xs font-semibold text-gray-700 capitalize">
+          {{ authService.currentUser()?.prenoms }} {{ authService.currentUser()?.nom }}
+        </p>
+        <p class="text-[8px] md:text-[10px] text-gray-400 capitalize">{{ authService.currentUser()?.role ||
+          'Utilisateur' }}</p>
+      </div>
     </div>
   </div>
 </header>
