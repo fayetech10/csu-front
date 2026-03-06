@@ -61,11 +61,11 @@ export class DepensePrestationComponent implements OnInit, OnDestroy {
     // Simulated data based on beneficiaries count — no real spending API
     const n = data.length || 1;
     this.categories = [
-      { categorie: 'Consultation', montant: Math.round(n * 3500), pct: 0, icon: '🩺' },
-      { categorie: 'Hospitalisation', montant: Math.round(n * 8200), pct: 0, icon: '🏥' },
-      { categorie: 'Médicaments', montant: Math.round(n * 2800), pct: 0, icon: '💊' },
-      { categorie: 'Maternité', montant: Math.round(n * 4500), pct: 0, icon: '🤰' },
-      { categorie: 'Chirurgie', montant: Math.round(n * 6000), pct: 0, icon: '🔪' },
+      { categorie: 'Consultation', montant: Math.round(n * 3500), pct: 0, icon: 'stethoscope' },
+      { categorie: 'Hospitalisation', montant: Math.round(n * 8200), pct: 0, icon: 'emergency' },
+      { categorie: 'Médicaments', montant: Math.round(n * 2800), pct: 0, icon: 'medication' },
+      { categorie: 'Maternité', montant: Math.round(n * 4500), pct: 0, icon: 'pregnant_woman' },
+      { categorie: 'Chirurgie', montant: Math.round(n * 6000), pct: 0, icon: 'medical_services' },
     ];
     this.totalDepenses = this.categories.reduce((s, c) => s + c.montant, 0);
     this.categories.forEach(c => c.pct = Math.round((c.montant / this.totalDepenses) * 100));

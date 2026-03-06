@@ -15,7 +15,7 @@
       <button
         class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-xs md:text-sm transition-all flex items-center justify-center gap-2 border-0 cursor-pointer w-full sm:w-auto"
         (click)="openGalleryModal()">
-        <span>📸</span> Galerie
+        <span class="material-symbols-outlined text-[20px]">photo_camera</span> Galerie
       </button>
       <button class="btn-primary flex items-center justify-center gap-2 flex-1 sm:flex-initial"
         (click)="openAddModal()">
@@ -27,7 +27,7 @@
   <!-- Export Section -->
   <div class="card p-4 md:p-5 border-l-4 border-l-blue-500 bg-blue-50/10">
     <div class="flex items-center gap-2 mb-4 text-blue-600">
-      <span class="text-lg">📊</span>
+      <span class="material-symbols-outlined text-[24px]">bar_chart</span>
       <h3 class="text-xs font-bold uppercase tracking-wider">Exportation des données</h3>
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
@@ -112,7 +112,7 @@
       <div class="flex gap-2">
         <button class="btn-primary flex-1 py-2.5 text-xs md:text-sm flex items-center justify-center gap-2"
           (click)="applyFilters()">
-          <span>🔍</span> Filtrer
+          <span class="material-symbols-outlined text-[18px]">search</span> Filtrer
         </button>
         <button
           class="px-3 py-2.5 border border-gray-200 rounded-xl text-[10px] md:text-xs font-bold text-gray-500 hover:bg-gray-50 transition-all border-0 cursor-pointer bg-white"
@@ -127,7 +127,7 @@
   <div class="card overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <span>📋</span>
+        <span class="material-symbols-outlined text-[20px] text-gray-500">assignment</span>
         <h2 class="text-sm font-bold text-gray-800">Liste des enrôlements ({{ filteredAdherents.length }})</h2>
       </div>
     </div>
@@ -195,17 +195,17 @@
                 <button
                   class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-gray-50 text-sencsu-green rounded-lg border border-gray-100 hover:bg-sencsu-green hover:text-white transition-all shadow-sm border-0 cursor-pointer"
                   title="Détails" (click)="viewDetail(a)">
-                  👁️
+                  <span class="material-symbols-outlined text-[18px]">visibility</span>
                 </button>
                 <button
                   class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-gray-50 text-blue-600 rounded-lg border border-gray-100 hover:bg-blue-600 hover:text-white transition-all shadow-sm border-0 cursor-pointer"
                   title="Modifier" (click)="editAdherent(a)">
-                  ✏️
+                  <span class="material-symbols-outlined text-[18px]">edit</span>
                 </button>
                 <button
                   class="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center bg-gray-50 text-red-500 rounded-lg border border-gray-100 hover:bg-red-500 hover:text-white transition-all shadow-sm border-0 cursor-pointer"
                   title="Supprimer" (click)="deleteAdherent(a)">
-                  🗑️
+                  <span class="material-symbols-outlined text-[18px]">delete</span>
                 </button>
               </div>
             </td>
@@ -283,7 +283,7 @@
         <!-- Identité -->
         <div class="space-y-3 sm:space-y-4">
           <div class="flex items-center gap-2 text-sencsu-green">
-            <span class="text-sm">👤</span>
+            <span class="material-symbols-outlined text-[20px]">person</span>
             <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Identité & Contact</h3>
           </div>
           <div class="bg-gray-50 rounded-2xl p-4 space-y-3">
@@ -319,7 +319,7 @@
         <!-- Enrôlement -->
         <div class="space-y-3 sm:space-y-4">
           <div class="flex items-center gap-2 text-blue-600">
-            <span class="text-sm">🛡️</span>
+            <span class="material-symbols-outlined text-[20px]">shield</span>
             <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Détails Enrôlement</h3>
           </div>
           <div class="bg-gray-50 rounded-2xl p-4 space-y-3">
@@ -340,7 +340,7 @@
         <!-- Agent -->
         <div class="space-y-3 sm:space-y-4">
           <div class="flex items-center gap-2 text-yellow-600">
-            <span class="text-sm">👷</span>
+            <span class="material-symbols-outlined text-[20px]">engineering</span>
             <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Agent de Collecte</h3>
           </div>
           <div *ngIf="selectedAdherent.agent" class="bg-gray-50 rounded-2xl p-4 flex items-center gap-3">
@@ -359,7 +359,7 @@
       <!-- Personnes en Charge -->
       <div class="space-y-4">
         <div class="flex items-center gap-2 text-red-500">
-          <span class="text-sm">👪</span>
+          <span class="material-symbols-outlined text-[20px]">family_restroom</span>
           <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Personnes en charge ({{
             selectedAdherent.personnesCharge.length }})</h3>
         </div>
@@ -430,7 +430,7 @@
     <!-- Header -->
     <div class="px-6 sm:px-8 py-4 sm:py-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
       <div class="flex items-center gap-3">
-        <span class="text-xl sm:text-2xl">📝</span>
+        <span class="material-symbols-outlined text-[24px]">edit_document</span>
         <h2 class="text-sm sm:text-xl font-extrabold text-gray-900 leading-tight">
           {{ isEditing ? 'Modifier l\'Enrôlement' : 'Nouvel Enrôlement' }}
         </h2>
@@ -447,7 +447,7 @@
       class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-8 sm:space-y-10">
       <div class="space-y-4 sm:space-y-6">
         <div class="flex items-center gap-2 text-sencsu-green border-b border-gray-100 pb-2">
-          <span class="text-sm sm:text-lg">👤</span>
+          <span class="material-symbols-outlined text-[20px]">person</span>
           <h3 class="text-[10px] sm:text-sm font-bold uppercase tracking-wider">Infos Bénéficiaire</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-5">
@@ -503,7 +503,7 @@
       <div class="space-y-6">
         <div class="flex items-center justify-between border-b border-gray-100 pb-2">
           <div class="flex items-center gap-2 text-red-500">
-            <span class="text-sm sm:text-lg">👪</span>
+            <span class="material-symbols-outlined text-[20px]">family_restroom</span>
             <h3 class="text-[10px] sm:text-sm font-bold uppercase tracking-wider">Ayants-droit ({{
               personnesChargeArray.length }})</h3>
           </div>
@@ -633,7 +633,7 @@
     <div class="px-6 py-4 sm:py-6 border-b border-gray-100 bg-gray-50/50">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
-          <span class="text-xl sm:text-2xl">📸</span>
+          <span class="material-symbols-outlined text-[24px]">photo_library</span>
           <div>
             <h2 class="text-sm sm:text-lg font-extrabold text-gray-900 leading-tight">Galerie des Photos</h2>
             <p class="text-[10px] text-gray-400">Total: {{ photos.length }} photos • {{ filteredPhotosList.length }}

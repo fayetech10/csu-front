@@ -9,8 +9,8 @@ import { NgClass, NgIf, DecimalPipe } from '@angular/common';
     <div class="card p-5 relative overflow-hidden hover:-translate-y-0.5 transition-transform cursor-default">
       <div class="absolute top-0 right-0 w-20 h-20 rounded-bl-full opacity-[0.06]"
            [ngClass]="blobClass"></div>
-      <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-4" [ngClass]="iconBg">
-        {{ icon }}
+      <div class="w-11 h-11 rounded-xl flex items-center justify-center mb-4 text-gray-700" [ngClass]="iconBg">
+        <span class="material-symbols-outlined text-[24px]">{{ icon }}</span>
       </div>
       <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">{{ label }}</p>
       <p class="text-3xl font-extrabold text-gray-900 tracking-tight leading-none">{{ value | number }}</p>

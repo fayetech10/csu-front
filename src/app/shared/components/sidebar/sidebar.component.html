@@ -21,7 +21,7 @@
     <button
       class="lg:hidden w-9 h-9 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all border-0 cursor-pointer"
       (click)="closeSidebar()">
-      <span class="text-sm">✕</span>
+      <span class="material-symbols-outlined text-sm">close</span>
     </button>
   </div>
 
@@ -29,11 +29,15 @@
   <nav class="flex-1 px-3 py-4 space-y-0.5">
     <ng-container *ngFor="let item of navItems">
       <div *ngIf="getSectionLabel(item) as section"
-        class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-3 pt-4 pb-1.5 mt-1">
+        class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-4 pt-5 pb-2 mt-2">
         {{ section }}
       </div>
-      <a [routerLink]="item.route" routerLinkActive="active-link" class="nav-link" (click)="closeSidebar()">
-        <span class="text-base leading-none w-5 text-center flex-shrink-0">{{ item.icon }}</span>
+      <a [routerLink]="item.route" routerLinkActive="bg-white/10 text-white font-medium shadow-sm"
+        [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+        class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all cursor-pointer group"
+        (click)="closeSidebar()">
+        <span class="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110 flex-shrink-0">{{
+          item.icon }}</span>
         <span class="flex-1 truncate text-sm">{{ item.label }}</span>
         <span *ngIf="item.badge"
           class="ml-auto bg-sencsu-yellow text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">

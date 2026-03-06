@@ -65,21 +65,25 @@ export class TrancheAgeComponent implements OnInit, OnDestroy {
   }
 
   private _computeStats(data: Beneficiaire[]) {
-    const ages = data.map(b => parseInt(b.age, 10) || 0);
+    const ages = data.map(b => {
+      const a = this.getAge(b.dateNaissance);
+      return typeof a === 'number' ? a : 0;
+    });
     this.ageMoyen = ages.length ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
     this.ageMin = ages.length ? Math.min(...ages) : 0;
     this.ageMax = ages.length ? Math.max(...ages) : 0;
 
     this.tranches = this.TRANCHES.map(t => {
       const inRange = data.filter(b => {
-        const age = parseInt(b.age, 10) || 0;
+        const a = this.getAge(b.dateNaissance);
+        const age = typeof a === 'number' ? a : 0;
         return age >= t.min && age <= t.max;
       });
       return {
         ...t,
         total: inRange.length,
-        hommes: inRange.filter(b => b.sexe === 'Homme').length,
-        femmes: inRange.filter(b => b.sexe !== 'Homme').length,
+        hommes: inRange.filter(b => b.sexe === 'Homme' || b.sexe === 'Masculin').length,
+        femmes: inRange.filter(b => b.sexe !== 'Homme' && b.sexe !== 'Masculin').length,
         pct: this.total ? Math.round((inRange.length / this.total) * 100) : 0
       };
     });
@@ -124,6 +128,36 @@ export class TrancheAgeComponent implements OnInit, OnDestroy {
         options: { responsive: true, maintainAspectRatio: true, cutout: '60%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans' }, padding: 12 } } } }
       }));
     }
+  }
+
+  getAge(dateNaissance: string): number | string {
+    if (!dateNaissance) return '—';
+    const parts = dateNaissance.split('/');
+    if (parts.length === 3) {
+      // Assuming MM/DD/YY or similar. If YYYY format, fallback to string parsing. Let's parse standard Date 
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    } else {
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    }
+    return '—';
   }
 
   pctBar(val: number) {

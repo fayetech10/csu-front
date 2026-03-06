@@ -58,7 +58,7 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
     const map = new Map<string, { total: number; hommes: number; femmes: number; communes: Set<string> }>();
 
     data.forEach(b => {
-      const a = b.agent_collect || 'Inconnu';
+      const a = b.agentCollect || 'Inconnu';
       if (!map.has(a)) map.set(a, { total: 0, hommes: 0, femmes: 0, communes: new Set() });
       const s = map.get(a)!;
       s.total++;

@@ -57,7 +57,7 @@ export class EnroulementMensuelComponent implements OnInit, OnDestroy {
     this.total = data.length;
     const counts = this.MOIS.map((_, i) =>
       data.filter(b => {
-        const d = new Date(b.dateCotisation);
+        const d = new Date(b.dateNaissance);
         return !isNaN(d.getTime()) && d.getMonth() === i;
       }).length
     );

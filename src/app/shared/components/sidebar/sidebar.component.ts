@@ -19,17 +19,18 @@ interface NavItem {
 })
 export class SidebarComponent {
   navItems: NavItem[] = [
-    { label: 'Tableau de bord', route: '/dashboard', icon: '🏠', section: 'Principal' },
-    { label: 'Enrolements', route: '/enrolements', icon: '📋' },
-    { label: 'Beneficiaires', route: '/beneficiaires', icon: '👥', badge: 200 },
-    { label: 'Type de beneficiaire', route: '/type-beneficiaire', icon: '🏷️', section: 'Parametres' },
-    { label: "Tranche d'age", route: '/tranche-age', icon: '📊' },
-    { label: 'Prestation', route: '/prestation', icon: '💊' },
-    { label: 'Depense de prestation', route: '/depense-prestation', icon: '💰' },
-    { label: 'Suivi de couverture', route: '/suivi-couverture', icon: '📈', section: 'Analyse' },
-    { label: 'Enrolement mensuel', route: '/enroulement-mensuel', icon: '📅' },
-    { label: 'Performance des agents', route: '/performance-agents', icon: '⭐' },
-    { label: 'Classement', route: '/classement', icon: '🏆' }
+    { label: 'Tableau de bord', route: '/dashboard', icon: 'dashboard', section: 'Principal' },
+    { label: 'Enrolements', route: '/enrolements', icon: 'person_add' },
+    { label: 'Beneficiaires', route: '/beneficiaires', icon: 'people', badge: 200 },
+    { label: 'Gestion des cartes', route: '/carte', icon: 'credit_card' },
+    { label: 'Type de beneficiaire', route: '/type-beneficiaire', icon: 'category', section: 'Parametres' },
+    { label: "Tranche d'age", route: '/tranche-age', icon: 'bar_chart' },
+    { label: 'Prestation', route: '/prestation', icon: 'local_hospital' },
+    { label: 'Depense de prestation', route: '/depense-prestation', icon: 'payments' },
+    { label: 'Suivi de couverture', route: '/suivi-couverture', icon: 'monitoring', section: 'Analyse' },
+    { label: 'Enrolement mensuel', route: '/enroulement-mensuel', icon: 'calendar_month' },
+    { label: 'Performance des agents', route: '/performance-agents', icon: 'star' },
+    { label: 'Classement', route: '/classement', icon: 'emoji_events' }
   ];
 
   isOpen$ = this.sidebarService.isOpen$;

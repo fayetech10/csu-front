@@ -13,13 +13,13 @@
 
   <!-- KPI Cards -->
   <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-    <app-stat-card label="Dépenses totales" [value]="totalDepenses" icon="💰" trend="FCFA" sub="budget global"
+    <app-stat-card label="Dépenses totales" [value]="totalDepenses" icon="payments" trend="FCFA" sub="budget global"
       color="green" />
-    <app-stat-card label="Moyenne / bénéf." [value]="moyenneParBenef" icon="📊" trend="FCFA" sub="par personne"
+    <app-stat-card label="Moyenne / bénéf." [value]="moyenneParBenef" icon="analytics" trend="FCFA" sub="par personne"
       color="blue" />
-    <app-stat-card label="Catégories" [value]="categories.length" icon="📋" trend="types" sub="de prestations"
+    <app-stat-card label="Catégories" [value]="categories.length" icon="category" trend="types" sub="de prestations"
       color="yellow" />
-    <app-stat-card label="Bénéficiaires" [value]="totalBenef" icon="👥" trend="—" sub="population couverte"
+    <app-stat-card label="Bénéficiaires" [value]="totalBenef" icon="groups" trend="—" sub="population couverte"
       color="red" />
   </div>
 
@@ -41,7 +41,7 @@
   <div class="card overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <span>💰</span>
+        <span class="material-symbols-outlined text-[20px] text-gray-500">payments</span>
         <h2 class="text-sm font-bold text-gray-800">Détail des dépenses par catégorie</h2>
       </div>
     </div>
@@ -61,7 +61,7 @@
             <td class="text-gray-400 font-mono text-xs">{{ i + 1 }}</td>
             <td>
               <div class="flex items-center gap-2">
-                <span>{{ c.icon }}</span>
+                <span class="material-symbols-outlined text-gray-400 text-lg">{{ c.icon }}</span>
                 <span class="font-semibold text-gray-800">{{ c.categorie }}</span>
               </div>
             </td>
@@ -86,7 +86,7 @@
   <div class="card overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <span>📅</span>
+        <span class="material-symbols-outlined text-[20px] text-gray-500">calendar_month</span>
         <h2 class="text-sm font-bold text-gray-800">Détail mensuel</h2>
       </div>
     </div>

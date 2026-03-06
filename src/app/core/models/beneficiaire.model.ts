@@ -7,35 +7,60 @@ export type SituationMatr = 'Marie' | 'Celibataire' | 'Veuf/Veuve' | 'Divorce';
 export interface Beneficiaire {
   id: number;
   prenoms: string;
+  nom: string;
+  sexe: 'Homme' | 'Femme' | 'Masculin' | 'Feminin' | string;
+  dateNaissance: string;
+  age?: number;
+  lieuNaissance?: string;
+  adresse?: string;
+  situationM: string;
+  beneficiaire: string; // ex: "Personne à charge" ou "Adherent"
+  agentCollect: string;
+  region: string;
+  assureur?: string;
+  departement: string;
+  commune: string;
+  typeBenef: string; // ex: "Classique" ou "Dara"
+  typeAdhesion?: string;
+}
+
+export interface Assure {
+  id: number;
+  dateEnregistrement: string;
+  codeImmatriculation: string;
   noms: string;
-  sexe: 'Homme' | 'Femme';
-  age: string; // ou number si tu veux convertir
-  dateNaissance: string; // format "MM/DD/YY"
-  situationM: string; // ex: "Non précisé"
-  beneficiare: string; // ex: "Personne à charge" ou "Adherent"
-  agent_collect: string;
+  prenoms: string;
+  dateNaissance: string;
+  sexe: string;
+  telephone: string;
+  adresse: string;
+  regime: string;
+  assureur: string;
+  typeBenef: string;
+  dateCotisation: string;
+  dateFinCotisation: string;
+  qrCodeUrl: string;
   region: string;
   departement: string;
   commune: string;
-  telephone: string;
-  typeBenef: string; // ex: "Classique" ou "Dara"
-  carteAssure: string; // ex: "En instance", "Remise"
-  dateCotisation: string; // format "MM/DD/YY"
-  dateRemise?: string; // peut être vide
+  groupe: string;
+  typeAdhesion: string;
+  typeCotisation: string;
+  cni: string;
+  photo: string;
+  carteAssure?: string;
+  dateRemise?: string;
 }
 
 export interface BeneficiaireFilter {
   search?: string;
   sexe?: string;
   typeBenef?: string;
-  carteAssure?: string;
   region?: string;
   departement?: string;
   commune?: string;
   ageMin?: number | null;
   ageMax?: number | null;
-  dateDebut?: string;
-  dateFin?: string;
 }
 
 export interface StatsDashboard {

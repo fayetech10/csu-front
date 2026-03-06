@@ -52,7 +52,7 @@ export class ClassementComponent implements OnInit, OnDestroy {
     // Agents
     const agents = new Map<string, { total: number; hommes: number; femmes: number }>();
     data.forEach(b => {
-      const a = b.agent_collect || 'Inconnu';
+      const a = b.agentCollect || 'Inconnu';
       if (!agents.has(a)) agents.set(a, { total: 0, hommes: 0, femmes: 0 });
       const s = agents.get(a)!;
       s.total++;
@@ -112,9 +112,9 @@ export class ClassementComponent implements OnInit, OnDestroy {
   }
 
   medalIcon(i: number): string {
-    if (i === 0) return '🥇';
-    if (i === 1) return '🥈';
-    if (i === 2) return '🥉';
+    if (i === 0) return 'workspace_premium';
+    if (i === 1) return 'military_tech';
+    if (i === 2) return 'military_tech';
     return '';
   }
 
@@ -124,7 +124,7 @@ export class ClassementComponent implements OnInit, OnDestroy {
   }
 
   tabIcon(tab: string): string {
-    const m: Record<string, string> = { agents: '👤', communes: '🏘️', regions: '📍' };
+    const m: Record<string, string> = { agents: 'person', communes: 'home_work', regions: 'location_on' };
     return m[tab] || '';
   }
 }

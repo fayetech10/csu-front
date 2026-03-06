@@ -32,20 +32,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loading = true;
-    this.svc.getBeneficiaires(0, 100000) // prend toutes les données
-      .subscribe(res => {
-        const data = res.data; // <-- tes Beneficiaires
-        console.log('Beneficiaires chargés:', data);
-        // Calcul des stats
-        this.stats = this._computeDashboardStats(data);
-        this.depts = this._computeDeptStats(data);
-        this.communes = this._computeCommuneStats(data);
-        this.filteredCommunes = [...this.communes];
+    this.svc.getBeneficiaires(0, 100000) // Récupère le modèle Bénéficiaire
+      .subscribe({
+        next: (res) => {
+          const data = res.data;
+          console.log('Bénéficiaires chargés sur Dashboard:', data);
+          // Calcul des stats
+          this.stats = this._computeDashboardStats(data);
+          this.depts = this._computeDeptStats(data);
+          this.communes = this._computeCommuneStats(data);
+          this.filteredCommunes = [...this.communes];
 
-        // Initialiser les graphiques
-        setTimeout(() => this._initCharts(data), 0);
+          // Initialiser les graphiques
+          setTimeout(() => this._initCharts(data), 0);
 
-        this.loading = false;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Erreur chargement bénéficiaires dashboard:', err);
+          this.loading = false;
+        }
       });
   }
 
@@ -61,40 +67,95 @@ export class DashboardComponent implements OnInit, OnDestroy {
       : this.communes;
   }
 
+  importExcel() {
+    const fileInput = document.getElementById('excelImport') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.loading = true;
+      this.svc.importBeneficiaires(file).subscribe({
+        next: () => {
+          alert('Importation des bénéficiaires réussie !');
+          this.ngOnInit(); // Recharge les données
+        },
+        error: (err) => {
+          console.error('Import error:', err);
+          alert('Erreur lors de l\'importation.');
+          this.loading = false;
+        }
+      });
+    }
+  }
+
   pct(val: number) {
     const max = this.filteredCommunes[0]?.total || 1;
     return Math.round((val / max) * 100);
+  }
+
+  getAge(dateNaissance: string): number | string {
+    if (!dateNaissance) return '—';
+    const parts = dateNaissance.split('/');
+    if (parts.length === 3) {
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    } else {
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    }
+    return '—';
   }
 
   /** CALCUL DES STATS */
   private _computeDeptStats(data: Beneficiaire[]): StatsDept[] {
     const map = new Map<string, StatsDept>();
     data.forEach(b => {
-      if (!map.has(b.departement)) map.set(b.departement, { departement: b.departement, total: 0, hommes: 0, femmes: 0 });
-      const d = map.get(b.departement)!;
+      const dept = b.departement || 'Inconnu';
+      if (!map.has(dept)) map.set(dept, { departement: dept, total: 0, hommes: 0, femmes: 0 });
+      const d = map.get(dept)!;
       d.total++;
-      if (b.sexe === 'Homme') d.hommes++; else d.femmes++;
+      if (b.sexe === 'Homme' || b.sexe === 'Masculin') d.hommes++; else d.femmes++;
     });
-    return Array.from(map.values());
+    return Array.from(map.values()).sort((a, b) => b.total - a.total);
   }
 
   private _computeCommuneStats(data: Beneficiaire[]): StatsCommune[] {
     const map = new Map<string, StatsCommune>();
     data.forEach(b => {
-      const key = b.commune + '|' + b.departement;
-      if (!map.has(key)) map.set(key, { commune: b.commune, departement: b.departement, region: b.region, total: 0, hommes: 0, femmes: 0 });
+      const com = b.commune || 'Inconnu';
+      const dept = b.departement || 'Inconnu';
+      const key = com + '|' + dept;
+      if (!map.has(key)) map.set(key, { commune: com, departement: dept, region: b.region, total: 0, hommes: 0, femmes: 0 });
       const c = map.get(key)!;
       c.total++;
-      if (b.sexe === 'Homme') c.hommes++; else c.femmes++;
+      if (b.sexe === 'Homme' || b.sexe === 'Masculin') c.hommes++; else c.femmes++;
     });
-    return Array.from(map.values());
+    return Array.from(map.values()).sort((a, b) => b.total - a.total);
   }
 
   private _computeDashboardStats(data: Beneficiaire[]): StatsDashboard {
     const total = data.length;
-    const hommes = data.filter(b => b.sexe === 'Homme').length;
+    const hommes = data.filter(b => b.sexe === 'Homme' || b.sexe === 'Masculin').length;
     const femmes = total - hommes;
-    const communesCouvertes = new Set(data.map(b => b.commune)).size;
+    const communesCouvertes = new Set(data.map(b => b.commune).filter(Boolean)).size;
     return { totalBeneficiaires: total, hommes, femmes, communesCouvertes };
   }
 
@@ -166,39 +227,82 @@ export class DashboardComponent implements OnInit, OnDestroy {
       options: base
     });
 
-    // chartCarte
-    const cartes = [
-      { statut: 'Remise', count: data.filter(b => b.carteAssure === 'Carte remise').length },
-      { statut: 'En instance', count: data.filter(b => b.carteAssure === 'En instance').length }
-    ];
-    mk('chartCarte', {
+    // QUALITE BENEFCIAIRE (Adherent vs Personne a charge)
+    const adherents = data.filter(b => b.beneficiaire === 'Adherent').length;
+    const aCharge = data.length - adherents;
+    mk('chartQualite', {
       type: 'doughnut',
       data: {
-        labels: cartes.map(c => c.statut),
-        datasets: [{ data: cartes.map(c => c.count), backgroundColor: [G, B] }]
+        labels: ['Adhérents', 'Personnes à charge'],
+        datasets: [{ data: [adherents, aCharge], backgroundColor: [G, Y] }]
       },
-      options: { ...base, cutout: '60%' }
+      options: { ...base, cutout: '70%' }
     });
 
-    // chartMensuel
-    const moisLabels = ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aout', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const mensuel = moisLabels.map((m, i) => ({
-      mois: m,
-      count: data.filter(b => new Date(b.dateCotisation).getMonth() === i).length
-    }));
-    mk('chartMensuel', {
-      type: 'line',
+    // SITUATION MATRIMONIALE VS SEXE
+    const sitMap = new Map<string, { hommes: number; femmes: number }>();
+    data.forEach(b => {
+      const s = b.situationM || 'Non précisé';
+      if (!sitMap.has(s)) sitMap.set(s, { hommes: 0, femmes: 0 });
+      const entry = sitMap.get(s)!;
+      if (b.sexe === 'Homme' || b.sexe === 'Masculin') entry.hommes++; else entry.femmes++;
+    });
+    const sitLabels = Array.from(sitMap.keys());
+    mk('chartSitMatSexe', {
+      type: 'bar',
       data: {
-        labels: mensuel.map(m => m.mois),
-        datasets: [{
-          data: mensuel.map(m => m.count),
-          borderColor: G,
-          backgroundColor: GL,
-          fill: true,
-          tension: 0.4
-        }]
+        labels: sitLabels,
+        datasets: [
+          { label: 'Hommes', data: sitLabels.map(l => sitMap.get(l)!.hommes), backgroundColor: B },
+          { label: 'Femmes', data: sitLabels.map(l => sitMap.get(l)!.femmes), backgroundColor: '#9b59b6' }
+        ]
       },
-      options: { ...base, plugins: { legend: { display: false } } }
+      options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
+    });
+
+    // REGION VS AGE
+    const regionsName = Array.from(new Set(data.map(b => b.region)));
+    const ageRegions = regionsName.map(r => {
+      const inRegion = data.filter(b => b.region === r);
+      let jeunes = 0, actifs = 0, seniors = 0;
+      inRegion.forEach(b => {
+        const a = this.getAge(b.dateNaissance);
+        const age = typeof a === 'number' ? a : 0;
+        if (age < 18) jeunes++;
+        else if (age < 60) actifs++;
+        else seniors++;
+      });
+      return { region: r, jeunes, actifs, seniors };
+    });
+    mk('chartAgeRegion', {
+      type: 'bar',
+      data: {
+        labels: ageRegions.map(r => r.region),
+        datasets: [
+          { label: '0-17 ans', data: ageRegions.map(r => r.jeunes), backgroundColor: '#f1c40f' },
+          { label: '18-59 ans', data: ageRegions.map(r => r.actifs), backgroundColor: '#1abc9c' },
+          { label: '60+ ans', data: ageRegions.map(r => r.seniors), backgroundColor: '#34495e' }
+        ]
+      },
+      options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
+    });
+
+    // TYPE BENEF VS REGION
+    const typeRegions = regionsName.map(r => {
+      const classiques = data.filter(b => b.region === r && b.typeBenef === 'Classique').length;
+      const daras = data.filter(b => b.region === r && b.typeBenef === 'Dara').length;
+      return { region: r, classiques, daras };
+    });
+    mk('chartTypeRegion', {
+      type: 'bar',
+      data: {
+        labels: typeRegions.map(r => r.region),
+        datasets: [
+          { label: 'Classique', data: typeRegions.map(r => r.classiques), backgroundColor: G },
+          { label: 'Dara', data: typeRegions.map(r => r.daras), backgroundColor: '#e67e22' }
+        ]
+      },
+      options: { ...base, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
     });
   }
 }

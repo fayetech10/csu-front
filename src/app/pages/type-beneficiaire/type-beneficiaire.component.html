@@ -15,9 +15,9 @@
 
   <!-- KPI Cards -->
   <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-    <app-stat-card label="Total" [value]="total" icon="👥" trend="100%" sub="bénéficiaires" color="green" />
+    <app-stat-card label="Total" [value]="total" icon="groups" trend="100%" sub="bénéficiaires" color="green" />
     <ng-container *ngFor="let t of types">
-      <app-stat-card [label]="t.type" [value]="t.total" icon="🏷️" [trend]="t.pct + '%'" sub="du total"
+      <app-stat-card [label]="t.type" [value]="t.total" icon="category" [trend]="t.pct + '%'" sub="du total"
         [color]="t.type === 'Classique' ? 'green' : 'yellow'" />
     </ng-container>
   </div>
@@ -40,7 +40,7 @@
   <div class="card overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <span>🏷️</span>
+        <span class="material-symbols-outlined text-gray-500 text-[20px]">label</span>
         <h2 class="text-sm font-bold text-gray-800">Détail par type et sexe</h2>
       </div>
     </div>
@@ -80,7 +80,7 @@
   <div class="card overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <span>📍</span>
+        <span class="material-symbols-outlined text-gray-500 text-[20px]">location_on</span>
         <h2 class="text-sm font-bold text-gray-800">Répartition par département</h2>
       </div>
     </div>

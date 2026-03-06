@@ -26,7 +26,8 @@ export class TopbarComponent implements OnInit {
     '/enroulement-mensuel': 'Enrôlement mensuel',
     '/performance-agents': 'Performance des agents',
     '/classement': 'Classement',
-    '/enrolements': 'Enrôlements'
+    '/enrolements': 'Enrôlements',
+    '/carte': 'Gestion des cartes'
   };
 
   constructor(

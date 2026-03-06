@@ -26,7 +26,7 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
   private _search$ = new Subject<string>();
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) {}
+  constructor(private svc: BeneficiaireService) { }
 
   ngOnInit() {
     this.svc.getRegions().subscribe(r => this.regions = r);
@@ -52,6 +52,29 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
 
   reset() { this.filter = {}; this.depts = []; this.communes = []; this.load(1); }
 
+  importExcel() {
+    const fileInput = document.getElementById('excelImport') as HTMLInputElement;
+    fileInput?.click();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.loading = true;
+      this.svc.importBeneficiaires(file).subscribe({
+        next: () => {
+          alert('Importation réussie !');
+          this.load(1);
+        },
+        error: (err) => {
+          console.error('Import error:', err);
+          alert('Erreur lors de l\'importation.');
+          this.loading = false;
+        }
+      });
+    }
+  }
+
   load(p: number) {
     this.loading = true;
     this.page = p;
@@ -71,12 +94,41 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
 
   sexePill(s: string) { return s === 'Masculin' ? 'pill pill-blue' : 'pill pill-pink'; }
   typePill(t: string) { return t === 'Classique' ? 'pill pill-green' : 'pill pill-yellow'; }
-  cartePill(c: string) { return c === 'Remise' ? 'pill pill-green' : 'pill pill-gray'; }
-  beneficiaireClass(b: Beneficiaire) { return b.beneficiare === 'Adhérent' ? 'bg-green-500 text-white' : 'bg-pink-50 text-pink-700'; }
-  initials(b: Beneficiaire) { return (b.prenoms[0] + b.noms[0]).toUpperCase(); }
-  avClass(b: Beneficiaire) { return b.sexe === 'Homme' ? 'from-blue-400 to-blue-600' : 'from-sencsu-green to-sencsu-green-mid'; }
+  beneficiaireClass(b: Beneficiaire) { return b.beneficiaire === 'Adherent' ? 'bg-green-500 text-white' : 'bg-pink-50 text-pink-700'; }
+  initials(b: Beneficiaire) { return (b.prenoms[0] + b.nom[0]).toUpperCase(); }
+  avClass(b: Beneficiaire) { return (b.sexe === 'Homme' || b.sexe === 'Masculin') ? 'from-blue-400 to-blue-600' : 'from-sencsu-green to-sencsu-green-mid'; }
+
+  getAge(dateNaissance: string): number | string {
+    if (!dateNaissance) return '—';
+    const parts = dateNaissance.split('/');
+    if (parts.length === 3) {
+      // Assuming MM/DD/YY or similar. If YYYY format, fallback to string parsing. Let's parse standard Date 
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    } else {
+      const bd = new Date(dateNaissance);
+      if (!isNaN(bd.getTime())) {
+        const today = new Date();
+        let age = today.getFullYear() - bd.getFullYear();
+        const m = today.getMonth() - bd.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < bd.getDate())) {
+          age--;
+        }
+        return age;
+      }
+    }
+    return '—';
+  }
 
   hasActiveFilter() {
-    return !!(this.filter.search || this.filter.sexe || this.filter.typeBenef || this.filter.carteAssure || this.filter.region);
+    return !!(this.filter.search || this.filter.sexe || this.filter.typeBenef || this.filter.region || this.filter.ageMin || this.filter.ageMax);
   }
 }

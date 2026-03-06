@@ -11,7 +11,7 @@
             <div class="text-center mb-10">
                 <div
                     class="w-20 h-20 bg-sencsu-green/10 rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-sm border border-sencsu-green/5">
-                    <span class="text-4xl">🇸🇳</span>
+                    <span class="material-symbols-outlined text-4xl text-sencsu-green">flag</span>
                 </div>
                 <h1 class="text-2xl font-black text-gray-900 tracking-tight leading-tight">Bienvenue sur SenCSU</h1>
                 <p class="text-sm text-gray-400 mt-2">Connectez-vous pour gérer les enrôlements</p>
@@ -22,7 +22,7 @@
 
                 <div *ngIf="error"
                     class="bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100 animate-fade-in flex items-center gap-3">
-                    <span class="text-lg">⚠️</span>
+                    <span class="material-symbols-outlined text-lg">warning</span>
                     {{ error }}
                 </div>
 
@@ -30,7 +30,8 @@
                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">Identifiant
                         WhatsApp / Email</label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">📱</span>
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-lg">phone_android</span>
                         <input type="text" formControlName="email"
                             class="w-full bg-gray-50 border-2 border-transparent focus:border-sencsu-green/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 text-sm font-semibold text-gray-800 transition-all outline-none placeholder:text-gray-300 shadow-sm"
                             placeholder="Ex: 771234567">
@@ -43,7 +44,8 @@
                     <label class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-1">Mot de
                         passe</label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-lg">lock</span>
                         <input type="password" formControlName="password"
                             class="w-full bg-gray-50 border-2 border-transparent focus:border-sencsu-green/20 focus:bg-white rounded-2xl py-3.5 pl-12 pr-4 text-sm font-semibold text-gray-800 transition-all outline-none placeholder:text-gray-300 shadow-sm"
                             placeholder="••••••••">

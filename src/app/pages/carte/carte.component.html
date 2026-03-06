@@ -1,0 +1,407 @@
+<div *ngIf="loading" class="flex items-center justify-center h-64">
+    <div class="flex flex-col items-center gap-3">
+        <div class="w-10 h-10 border-4 border-sencsu-green/20 border-t-sencsu-green rounded-full animate-spin"></div>
+        <p class="text-sm text-gray-400">Chargement...</p>
+    </div>
+</div>
+
+<div *ngIf="!loading" class="page-anim space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Gestion des cartes</h1>
+            <p class="text-xs md:text-sm text-gray-400 mt-1">Suivi de la distribution et validation des cartes d'assuré
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button (click)="importAssureList()" class="btn-outline-green flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">group_add</span>
+                Importer les assurés
+            </button>
+            <button (click)="openImport()" class="btn-outline-green flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">upload_file</span>
+                Importer des cartes
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+        <app-stat-card label="Total cartes" [value]="totalCartes" icon="credit_card" trend="assurés" sub="enregistrés"
+            color="blue" />
+        <app-stat-card label="Cartes remises" [value]="cartesRemises" icon="check_circle" [trend]="tauxRemise + '%'"
+            sub="du total" color="green" />
+        <app-stat-card label="Non remises" [value]="cartesNonRemises" icon="pending" [trend]="(100 - tauxRemise) + '%'"
+            sub="en attente" color="red" />
+        <app-stat-card label="Taux de remise" [value]="tauxRemise" icon="percent" trend="%" sub="de distribution"
+            color="yellow" />
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="card p-5">
+            <p class="text-sm font-bold text-gray-800">Statut des cartes</p>
+            <p class="text-xs text-gray-400 mb-4">Remises vs Non remises</p>
+            <div class="h-[250px] w-full">
+                <canvas id="chartCarteStatut"></canvas>
+            </div>
+        </div>
+        <div class="card p-5 xl:col-span-2">
+            <p class="text-sm font-bold text-gray-800">Distribution par département</p>
+            <p class="text-xs text-gray-400 mb-4">Cartes remises et non remises par zone</p>
+            <div class="h-[250px] w-full">
+                <canvas id="chartCarteDept"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card overflow-hidden">
+        <!-- Toolbar -->
+        <div class="px-5 py-4 border-b border-gray-100 space-y-3">
+            <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-gray-500 text-[20px]">credit_card</span>
+                    <h2 class="text-sm font-bold text-gray-800">Liste des assurés</h2>
+                </div>
+                <div class="flex-1"></div>
+                <!-- Search -->
+                <div class="relative min-w-48">
+                    <span
+                        class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400 text-[20px]">search</span>
+                    <input class="form-ctrl w-full pl-9" placeholder="Rechercher code, nom, téléphone..."
+                        [(ngModel)]="searchTerm" (input)="onSearch()" />
+                </div>
+                <!-- Filters -->
+                <select class="form-ctrl" [(ngModel)]="filterStatut" (change)="onFilterChange()">
+                    <option value="">Tous les statuts</option>
+                    <option value="remise">Remise</option>
+                    <option value="non-remise">Non remise</option>
+                </select>
+                <select class="form-ctrl" [(ngModel)]="filterRegion" (change)="onFilterChange()">
+                    <option value="">Toutes les régions</option>
+                    <option *ngFor="let r of regions" [value]="r">{{ r }}</option>
+                </select>
+                <select class="form-ctrl" [(ngModel)]="filterDept" (change)="onFilterChange()">
+                    <option value="">Tous les départements</option>
+                    <option *ngFor="let d of depts" [value]="d">{{ d }}</option>
+                </select>
+                <button *ngIf="searchTerm || filterStatut || filterDept || filterRegion" (click)="resetFilters()"
+                    class="text-red-500 text-sm font-semibold px-3 py-2 rounded-xl hover:bg-red-50 transition-colors border-0 cursor-pointer bg-transparent">
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full tbl">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Code Immatriculation</th>
+                        <th>Nom complet</th>
+                        <th>Régime</th>
+                        <th>Localité</th>
+                        <th>Téléphone</th>
+                        <th>Statut Carte</th>
+                        <th>Date Remise</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of paginatedAssures; let i = index">
+                        <td class="text-gray-400 font-mono text-xs">{{ startIdx + i }}</td>
+                        <td class="text-xs font-bold text-sencsu-green">{{ a.codeImmatriculation || '—' }}</td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                                    [ngClass]="a.sexe === 'Masculin' || a.sexe === 'Homme' ? 'from-blue-400 to-blue-600' : 'from-sencsu-green to-sencsu-green-mid'">
+                                    {{ (a.prenoms || '?')[0] }}{{ (a.noms || '?')[0] }}
+                                </div>
+                                <div class="leading-tight">
+                                    <span
+                                        class="font-semibold text-gray-800 text-sm cursor-pointer hover:text-sencsu-green"
+                                        (click)="openDetail(a)">
+                                        {{ a.prenoms }} {{ a.noms }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-xs text-gray-600">{{ a.regime || '—' }}</td>
+                        <td class="text-xs text-gray-600">
+                            <div class="flex flex-col">
+                                <span>{{ a.departement }}</span>
+                                <span class="text-[10px] text-gray-400">{{ a.commune }}</span>
+                            </div>
+                        </td>
+                        <td class="text-xs text-gray-500 font-mono">{{ a.telephone || '—' }}</td>
+                        <td><span [class]="statutClass(a)">{{ statutLabel(a) }}</span></td>
+                        <td class="text-xs text-gray-500 font-mono">{{ a.dateRemise || '—' }}</td>
+                        <td>
+                            <div class="flex items-center gap-1.5">
+                                <button *ngIf="!isCarteRemise(a)"
+                                    class="w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors border-0 cursor-pointer flex items-center justify-center"
+                                    title="Valider la carte" (click)="quickValidate(a)">
+                                    <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border-0 cursor-pointer flex items-center justify-center"
+                                    title="Modifier / Détails" (click)="openEdit(a)">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors border-0 cursor-pointer flex items-center justify-center"
+                                    title="Voir détails" (click)="openDetail(a)">
+                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredAssures.length === 0">
+                        <td colspan="9" class="text-center py-14">
+                            <div class="flex flex-col items-center gap-2 text-gray-400">
+                                <span class="material-symbols-outlined text-4xl">search</span>
+                                <p class="font-semibold">Aucun assuré trouvé</p>
+                                <p class="text-xs">Modifiez vos critères de recherche</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+            <p class="text-sm text-gray-400">
+                <strong class="text-gray-700">{{ startIdx }}–{{ endIdx }}</strong> sur
+                <strong class="text-gray-700">{{ filteredAssures.length }}</strong> assurés
+            </p>
+            <div class="flex items-center gap-1">
+                <button
+                    class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer bg-white"
+                    [disabled]="currentPage === 1" (click)="setPage(currentPage - 1)">‹</button>
+                <button *ngFor="let p of pages"
+                    class="w-8 h-8 rounded-lg border text-sm font-medium transition-colors cursor-pointer"
+                    [class]="p === currentPage ? 'bg-sencsu-green text-white border-sencsu-green' : 'border-gray-200 text-gray-600 hover:bg-gray-50 bg-white'"
+                    (click)="setPage(p)">{{ p }}</button>
+                <button
+                    class="w-8 h-8 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer bg-white"
+                    [disabled]="currentPage === totalPages" (click)="setPage(currentPage + 1)">›</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div *ngIf="showEditModal" class="fixed inset-0 z-[200] flex items-center justify-center">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" (click)="closeEdit()"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden animate-fade-in">
+        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sencsu-green text-[22px]">credit_card</span>
+                <h3 class="text-base font-bold text-gray-800">Mise à jour de la remise</h3>
+            </div>
+            <button
+                class="w-8 h-8 rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 transition-colors border-0 cursor-pointer flex items-center justify-center"
+                (click)="closeEdit()">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
+        <div class="p-6 space-y-5" *ngIf="editingAssure">
+            <!-- Assure info -->
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Assuré</p>
+                <p class="font-semibold text-gray-800">{{ editingAssure.prenoms }} {{ editingAssure.noms }}</p>
+                <p class="text-xs text-gray-500">{{ editingAssure.codeImmatriculation }}</p>
+            </div>
+
+            <!-- Carte identification -->
+            <div>
+                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 block">Statut / N°
+                    Carte</label>
+                <input class="form-ctrl w-full" [(ngModel)]="editCarteAssure" placeholder="Ex: OUI ou N° série">
+            </div>
+
+            <!-- Date de remise -->
+            <div>
+                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 block">Date de
+                    remise</label>
+                <input type="text" class="form-ctrl w-full" [(ngModel)]="editDateRemise" placeholder="JJ/MM/AAAA">
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-3 pt-2">
+                <button class="btn-outline-green flex-1" (click)="closeEdit()">Annuler</button>
+                <button class="btn-green flex-1 flex items-center justify-center gap-2" (click)="validerCarte()">
+                    <span class="material-symbols-outlined text-[18px]">check</span>
+                    Sauvegarder
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div *ngIf="showImportModal" class="fixed inset-0 z-[200] flex items-center justify-center">
+    <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" (click)="closeImport()"></div>
+    <div
+        class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden animate-fade-in text-center">
+        <div class="p-8">
+            <div
+                class="mx-auto w-16 h-16 rounded-full bg-sencsu-green/10 flex items-center justify-center text-sencsu-green mb-4">
+                <span class="material-symbols-outlined text-4xl">upload_file</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800">Importer la liste des cartes</h3>
+            <p class="text-sm text-gray-400 mt-2 mb-6">
+                Le fichier Excel doit contenir les colonnes : <br>
+                <strong class="text-gray-600">Code Immatriculation</strong>, <strong class="text-gray-600">Carte
+                    Assure</strong>, <strong class="text-gray-600">Date Remise</strong>
+            </p>
+
+            <div *ngIf="!importResult">
+                <input type="file" id="fileImport" class="hidden" (change)="onImportFileChange($event)"
+                    accept=".xlsx, .xls">
+                <label for="fileImport"
+                    class="block w-full border-2 border-dashed border-gray-200 rounded-xl p-6 cursor-pointer hover:border-sencsu-green/50 hover:bg-sencsu-green/5 transition-all">
+                    <span class="material-symbols-outlined text-gray-300 text-3xl mb-2">add_circle</span>
+                    <p class="text-sm font-semibold text-gray-500">{{ importFile ? importFile.name : 'Cliquez pour
+                        sélectionner un fichier' }}</p>
+                </label>
+
+                <div class="flex items-center gap-3 mt-8">
+                    <button class="btn-outline-green flex-1" (click)="closeImport()">Annuler</button>
+                    <button class="btn-green flex-1 disabled:opacity-50" [disabled]="!importFile || importing"
+                        (click)="submitImport()">
+                        {{ importing ? 'Importation...' : 'Importer' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Import Result -->
+            <div *ngIf="importResult" class="py-4">
+                <div class="flex items-center justify-around mb-6">
+                    <div class="text-center">
+                        <p class="text-2xl font-black text-sencsu-green">{{ importResult.updated }}</p>
+                        <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Mises à jour</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-2xl font-black text-red-500">{{ importResult.notFound }}</p>
+                        <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Non trouvés</p>
+                    </div>
+                </div>
+                <button class="btn-green w-full" (click)="closeImport()">Terminer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Drawer -->
+<div *ngIf="showDetail" class="fixed inset-0 z-[300]">
+    <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-[2px]" (click)="closeDetail()"></div>
+    <div
+        class="absolute top-0 right-0 h-full w-full max-w-lg bg-gray-50 shadow-2xl animate-slide-in overflow-hidden flex flex-col">
+        <div class="px-6 py-5 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
+            <h3 class="text-base font-bold text-gray-800">Détails de l'assuré</h3>
+            <button (click)="closeDetail()"
+                class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors border-0 cursor-pointer">
+                <span class="material-symbols-outlined text-gray-400 text-[20px]">close</span>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6" *ngIf="detailAssure">
+            <!-- Profile Info -->
+            <div class="card p-5 flex items-center gap-4">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sencsu-green to-sencsu-green-mid flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-sencsu-green/20">
+                    {{ (detailAssure.prenoms || '?')[0] }}{{ (detailAssure.noms || '?')[0] }}
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold text-gray-800">{{ detailAssure.prenoms }} {{ detailAssure.noms }}</h4>
+                    <p class="text-sm font-mono text-sencsu-green font-bold">{{ detailAssure.codeImmatriculation }}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span [class]="statutClass(detailAssure)">Carte {{ statutLabel(detailAssure) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Data Grid -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest">Date Enregistrement</p>
+                    <p class="text-sm font-semibold text-gray-700">{{ detailAssure.dateEnregistrement || '—' }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest">Sexe</p>
+                    <p class="text-sm font-semibold text-gray-700">{{ detailAssure.sexe || '—' }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest">Date Naissance</p>
+                    <p class="text-sm font-semibold text-gray-700">{{ detailAssure.dateNaissance || '—' }}</p>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest">Téléphone</p>
+                    <p class="text-sm font-mono text-gray-700">{{ detailAssure.telephone || '—' }}</p>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-6">
+                <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest mb-4">Localisation & Régime</p>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-dashed border-gray-100">
+                        <span class="text-gray-400">Régime / Assureur</span>
+                        <span class="font-bold text-gray-800">{{ detailAssure.regime }} / {{ detailAssure.assureur
+                            }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-dashed border-gray-100">
+                        <span class="text-gray-400">Région</span>
+                        <span class="font-semibold text-gray-700">{{ detailAssure.region }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-dashed border-gray-100">
+                        <span class="text-gray-400">Département</span>
+                        <span class="font-semibold text-gray-700">{{ detailAssure.departement }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-dashed border-gray-100">
+                        <span class="text-gray-400">Commune / Adresse</span>
+                        <span class="font-semibold text-gray-700">{{ detailAssure.commune }} ({{ detailAssure.adresse ||
+                            'N/A' }})</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-6">
+                <p class="text-[10px] uppercase font-black text-gray-400 tracking-widest mb-4">Informations
+                    Complémentaires</p>
+                <div class="grid grid-cols-2 gap-y-4">
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-gray-400">Type Bénéficiaire</p>
+                        <p class="text-sm font-bold text-gray-700">{{ detailAssure.typeBenef }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-gray-400">Groupe</p>
+                        <p class="text-sm font-bold text-gray-700">{{ detailAssure.groupe || '—' }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-gray-400">Adhésion / Cotisation</p>
+                        <p class="text-xs font-semibold text-gray-700">{{ detailAssure.typeAdhesion }} / {{
+                            detailAssure.typeCotisation }}</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] text-gray-400">CNI</p>
+                        <p class="text-sm font-mono text-gray-700">{{ detailAssure.cni || '—' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="pt-6">
+                <button (click)="openEdit(detailAssure); closeDetail()"
+                    class="btn-green w-full flex items-center justify-center gap-2 py-3 rounded-2xl shadow-lg shadow-sencsu-green/20">
+                    <span class="material-symbols-outlined">edit</span>
+                    Gérer la remise de carte
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
