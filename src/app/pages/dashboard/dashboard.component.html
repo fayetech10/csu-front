@@ -42,14 +42,20 @@
   <!-- Charts Row 1 -->
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
     <div class="card p-5 xl:col-span-2 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Bénéficiaires par Département</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-blue-500 text-[18px]">bar_chart</span>
+        <p class="text-sm font-bold text-gray-800">Bénéficiaires par Département</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Répartition Hommes / Femmes</p>
       <div class="h-[250px] md:h-[300px] w-full">
         <canvas id="chartDept"></canvas>
       </div>
     </div>
     <div class="card p-5 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Répartition par Sexe</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-pink-500 text-[18px]">pie_chart</span>
+        <p class="text-sm font-bold text-gray-800">Répartition par Sexe</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Distribution globale</p>
       <div class="h-[250px] md:h-[300px] w-full">
         <canvas id="chartSexe"></canvas>
@@ -60,14 +66,20 @@
   <!-- Charts Row 2: Region x Age & Situation Mat. x Sexe -->
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
     <div class="card p-5 xl:col-span-1 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Tranches d'âge par Région</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-purple-500 text-[18px]">groups</span>
+        <p class="text-sm font-bold text-gray-800">Tranches d'âge par Région</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Répartition démographique géographique</p>
       <div class="h-[250px] md:h-[300px] w-full">
         <canvas id="chartAgeRegion"></canvas>
       </div>
     </div>
     <div class="card p-5 xl:col-span-1 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Situation Matrimoniale par Sexe</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-orange-500 text-[18px]">family_restroom</span>
+        <p class="text-sm font-bold text-gray-800">Situation Matrimoniale par Sexe</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Hommes vs Femmes par état civil</p>
       <div class="h-[250px] md:h-[300px] w-full">
         <canvas id="chartSitMatSexe"></canvas>
@@ -77,7 +89,10 @@
 
   <!-- Chart Full Width -->
   <div class="card p-5 overflow-hidden">
-    <p class="text-sm font-bold text-gray-800">Bénéficiaires par Commune</p>
+    <div class="flex items-center gap-2 mb-1">
+      <span class="material-symbols-outlined text-teal-500 text-[18px]">location_on</span>
+      <p class="text-sm font-bold text-gray-800">Bénéficiaires par Commune</p>
+    </div>
     <p class="text-xs text-gray-400 mb-4">Répartition Hommes / Femmes</p>
     <div class="h-[250px] md:h-[300px] w-full">
       <canvas id="chartCom"></canvas>
@@ -87,7 +102,10 @@
   <!-- Charts Row 3: Qualite, Type, Type x Region -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="card p-5 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Qualité du Bénéficiaire</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-green-500 text-[18px]">verified_user</span>
+        <p class="text-sm font-bold text-gray-800">Qualité du Bénéficiaire</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Adhérents ou à charge</p>
       <div class="h-[200px] md:h-[250px] w-full">
         <canvas id="chartQualite"></canvas>
@@ -95,7 +113,10 @@
     </div>
 
     <div class="card p-5 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Type de bénéficiaire</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-indigo-500 text-[18px]">category</span>
+        <p class="text-sm font-bold text-gray-800">Type de bénéficiaire</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Classique vs Dara</p>
       <div class="h-[200px] md:h-[250px] w-full">
         <canvas id="chartType"></canvas>
@@ -103,7 +124,10 @@
     </div>
 
     <div class="card p-5 overflow-hidden">
-      <p class="text-sm font-bold text-gray-800">Type par Région</p>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="material-symbols-outlined text-amber-500 text-[18px]">map</span>
+        <p class="text-sm font-bold text-gray-800">Type par Région</p>
+      </div>
       <p class="text-xs text-gray-400 mb-4">Proportion de Dara par zone</p>
       <div class="h-[200px] md:h-[250px] w-full">
         <canvas id="chartTypeRegion"></canvas>

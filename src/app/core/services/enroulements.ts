@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Adherent } from "../models/enroulement.model";
+import { environment } from "../../../environments/environment";
 
 export interface PhotoMetadata {
   filename: string;
@@ -12,7 +13,7 @@ export interface PhotoMetadata {
 
 @Injectable({ providedIn: 'root' })
 export class EnroulementService {
-  private apiUrl = 'http://localhost:8080/api'; // Changez l'URL selon votre environnement
+  private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) { }
 
   getAdherents(): Observable<{ message: string, data: Adherent[] }> {

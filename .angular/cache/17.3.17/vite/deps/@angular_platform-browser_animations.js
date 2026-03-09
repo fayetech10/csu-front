@@ -1,11 +1,11 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-6MZBRZ54.js";
-import "./chunk-ZEGHIHRZ.js";
+} from "./chunk-FJCJNGI5.js";
+import "./chunk-DWZGULHC.js";
 import {
   DOCUMENT
-} from "./chunk-RU5QBMYY.js";
+} from "./chunk-3II4CH2V.js";
 import {
   ANIMATION_MODULE_TYPE,
   ChangeDetectionScheduler,
@@ -23,14 +23,14 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-2DXLVW4Q.js";
+} from "./chunk-KHB3FGJO.js";
 import "./chunk-4RMHXXWK.js";
 import "./chunk-LFVCTHGI.js";
 import "./chunk-AJN3JCM6.js";
 import {
   __objRest,
   __spreadValues
-} from "./chunk-WDMUDEB6.js";
+} from "./chunk-TXDUYLVM.js";
 
 // node_modules/@angular/animations/fesm2022/animations.mjs
 var AnimationMetadataType;

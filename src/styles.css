@@ -23,15 +23,19 @@
 @layer components {
 
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200;
   }
 
   .btn-green {
-    @apply bg-sencsu-green text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-sencsu-green-dark transition-all active:scale-95 border-0 cursor-pointer;
+    @apply bg-sencsu-green text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-sencsu-green-dark transition-all active:scale-95 border-0 cursor-pointer shadow-sm hover:shadow-md;
   }
 
   .btn-outline-green {
     @apply bg-white text-sencsu-green border border-sencsu-green text-sm font-semibold px-4 py-2 rounded-xl hover:bg-sencsu-green-light transition-all active:scale-95 cursor-pointer;
+  }
+
+  .btn-red {
+    @apply bg-red-500 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-600 transition-all active:scale-95 border-0 cursor-pointer;
   }
 
   .form-ctrl {
@@ -80,21 +84,14 @@
   }
 
   .tbl tr:hover {
-    @apply bg-gray-50;
+    @apply bg-gray-50/70;
   }
 
   .tbl tr:last-child {
     @apply border-b-0;
   }
 
-  .btn-red {
-    @apply bg-red-500 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-600 transition-all active:scale-95 border-0 cursor-pointer;
-  }
-
-  .card {
-    @apply hover:shadow-md transition-shadow duration-200;
-  }
-
+  /* ── Animations ── */
   .animate-fade-in {
     animation: fadeIn .2s ease forwards;
   }
@@ -109,6 +106,108 @@
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .animate-slide-in {
+    animation: slideIn .3s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slideUp .3s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Shimmer skeleton */
+  .skeleton {
+    @apply relative overflow-hidden bg-gray-100 rounded-xl;
+  }
+
+  .skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Count-up number animation */
+  .count-up {
+    animation: countPop .4s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  @keyframes countPop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* ── Sidebar Active States ── */
+  .active-nav {
+    @apply bg-white/[0.08] text-white shadow-sm !important;
+  }
+
+  .active-child {
+    @apply text-sencsu-yellow font-semibold !important;
+  }
+
+  .active-child span {
+    @apply opacity-100 !important;
+  }
+
+  /* ── Sidebar Submenu Grid Animation ── */
+  .submenu-grid {
+    display: grid;
+    transition: grid-template-rows 350ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 250ms ease;
+  }
+
+  .submenu-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .submenu-closed {
+    grid-template-rows: 0fr;
+    opacity: 0;
   }
 }
 
@@ -130,6 +229,7 @@
   }
 }
 
+/* ── Custom Scrollbar ── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -142,4 +242,34 @@
 ::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 4px;
+  transition: background .2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ── Sidebar Specific Scrollbar ── */
+.custom-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Focus Accessibility ── */
+:focus-visible {
+  outline: 2px solid #00853f;
+  outline-offset: 2px;
+  border-radius: 8px;
 }

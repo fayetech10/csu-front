@@ -3,21 +3,21 @@
   (click)="closeSidebar()"></div>
 
 <aside
-  class="fixed lg:static inset-y-0 left-0 z-[120] w-64 bg-sencsu-green-dark flex flex-col overflow-y-auto flex-shrink-0 transition-transform duration-300 lg:translate-x-0"
+  class="fixed lg:static inset-y-0 left-0 z-[120] w-64 bg-sencsu-green-dark flex flex-col overflow-y-auto flex-shrink-0 transition-all duration-300 lg:translate-x-0 border-r border-white/5"
   [class.-translate-x-full]="!(isOpen$ | async)">
 
   <!-- Logo & Close Button -->
   <div class="px-5 py-6 border-b border-white/10 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow overflow-hidden">
-        <img src="assets/logo.png" alt="SenCSU Logo" class="w-full h-full object-cover">
+      <div
+        class="w-11 h-11 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden border border-white/20">
+        <img src="/assets/logo.png" alt="SenCSU Logo" class="w-full h-full object-cover">
       </div>
       <div>
         <div class="text-base font-extrabold text-white tracking-tight leading-none">SENCSU</div>
-        <div class="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Couverture Sanitaire</div>
+        <div class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Couverture Sanitaire</div>
       </div>
     </div>
-    <!-- Close button for mobile -->
     <button
       class="lg:hidden w-9 h-9 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-all border-0 cursor-pointer"
       (click)="closeSidebar()">
@@ -26,29 +26,99 @@
   </div>
 
   <!-- Nav -->
-  <nav class="flex-1 px-3 py-4 space-y-0.5">
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto min-h-0 custom-sidebar-scroll">
     <ng-container *ngFor="let item of navItems">
+      <!-- Section Label -->
       <div *ngIf="getSectionLabel(item) as section"
-        class="text-[10px] font-bold uppercase tracking-widest text-white/30 px-4 pt-5 pb-2 mt-2">
+        class="text-[10px] font-bold uppercase tracking-widest text-white/20 px-4 pt-6 pb-2 mt-2 first:mt-0">
         {{ section }}
       </div>
-      <a [routerLink]="item.route" routerLinkActive="bg-white/10 text-white font-medium shadow-sm"
-        [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
-        class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-white/70 hover:bg-white/5 hover:text-white transition-all cursor-pointer group"
-        (click)="closeSidebar()">
-        <span class="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110 flex-shrink-0">{{
-          item.icon }}</span>
-        <span class="flex-1 truncate text-sm">{{ item.label }}</span>
-        <span *ngIf="item.badge"
-          class="ml-auto bg-sencsu-yellow text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">
-          {{ item.badge }}
-        </span>
-      </a>
+
+      <!-- Main Item (Simple or Parent) -->
+      <div class="space-y-0">
+        <!-- Parent/Link Item -->
+        <a [routerLink]="item.route ? item.route : null" routerLinkActive="active-nav"
+          [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+          (click)="item.children ? toggleSubmenu(item) : closeSidebar()"
+          class="relative flex items-center gap-3 px-4 py-2.5 mx-2 rounded-xl text-white/50 hover:bg-white/[0.07] hover:text-white transition-all duration-200 cursor-pointer group"
+          [ngClass]="{
+            'bg-white/[0.06] text-white/80': item.children && item.expanded,
+            'bg-sencsu-yellow/[0.08] text-white/90 border-l-2 border-sencsu-yellow': isGroupActive(item) && !item.expanded
+          }">
+
+          <!-- Active bar -->
+          <span *ngIf="item.route"
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 rounded-full bg-sencsu-yellow transition-all duration-300 group-[.active-nav]:h-5"></span>
+
+          <span
+            class="material-symbols-outlined text-[20px] transition-all duration-200 group-hover:scale-110 flex-shrink-0 group-[.active-nav]:text-white"
+            [ngClass]="{
+              'text-white': item.expanded || isGroupActive(item),
+              'text-sencsu-yellow': isGroupActive(item) && !item.expanded
+            }">
+            {{ item.icon }}
+          </span>
+
+          <span class="flex-1 truncate text-sm group-[.active-nav]:text-white group-[.active-nav]:font-semibold"
+            [ngClass]="{
+              'text-white font-semibold': item.expanded,
+              'text-white/90 font-medium': isGroupActive(item) && !item.expanded
+            }">
+            {{ item.label }}
+          </span>
+
+          <span *ngIf="item.badge"
+            class="bg-sencsu-yellow text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-full leading-none shadow-sm h-fit">
+            {{ item.badge }}
+          </span>
+
+          <!-- Chevron for submenus -->
+          <span *ngIf="item.children"
+            class="material-symbols-outlined text-sm transition-all duration-300 opacity-40 group-hover:opacity-100"
+            [ngClass]="{
+              'rotate-180 opacity-100 text-sencsu-yellow': item.expanded,
+              'rotate-0': !item.expanded
+            }">
+            expand_more
+          </span>
+        </a>
+
+        <!-- Submenu Container — CSS Grid animation for smooth height -->
+        <div *ngIf="item.children" class="submenu-grid" [ngClass]="item.expanded ? 'submenu-open' : 'submenu-closed'">
+          <div class="min-h-0 overflow-hidden">
+            <div class="ml-5 mr-2 space-y-0.5 border-l-2 border-white/10 pl-3 py-2">
+              <a *ngFor="let child of item.children" [routerLink]="child.route" routerLinkActive="active-child"
+                (click)="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-white/40 hover:bg-white/[0.06] hover:text-white/80 transition-all duration-200 cursor-pointer group/child relative">
+
+                <!-- Active dot indicator -->
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-white/20 flex-shrink-0 transition-all duration-200 group-[.active-child]/child:bg-sencsu-yellow group-[.active-child]/child:shadow-[0_0_6px_rgba(255,193,7,0.4)]"></span>
+
+                <span
+                  class="material-symbols-outlined text-[17px] opacity-40 transition-all duration-200 group-hover/child:opacity-80 group-[.active-child]/child:text-sencsu-yellow group-[.active-child]/child:opacity-100">
+                  {{ child.icon }}
+                </span>
+
+                <span
+                  class="text-[13px] transition-all duration-200 group-[.active-child]/child:text-white group-[.active-child]/child:font-semibold">
+                  {{ child.label }}
+                </span>
+
+                <span *ngIf="child.badge"
+                  class="ml-auto bg-sencsu-yellow/80 text-gray-900 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                  {{ child.badge }}
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </ng-container>
   </nav>
 
   <!-- Footer -->
-  <div class="px-5 py-3 border-t border-white/10 text-center mt-auto">
-    <p class="text-[10px] text-white/25">© 2025 SENCSU · Senegal</p>
+  <div class="px-5 py-4 border-t border-white/5 text-center mt-auto">
+    <p class="text-[10px] text-white/20 font-medium letter-spacing-wide">© 2026 SENCSU · SENEGAL</p>
   </div>
 </aside>

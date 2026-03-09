@@ -38,7 +38,7 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
   constructor(private svc: BeneficiaireService) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 1000)
+    this.svc.getBeneficiaires(0, 100000)
       .pipe(takeUntil(this._destroy$))
       .subscribe(res => {
         this._computeStats(res.data);
@@ -62,7 +62,7 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
       if (!map.has(a)) map.set(a, { total: 0, hommes: 0, femmes: 0, communes: new Set() });
       const s = map.get(a)!;
       s.total++;
-      if (b.sexe === 'Homme') s.hommes++; else s.femmes++;
+      if (b.sexe === 'Masculin') s.hommes++; else s.femmes++;
       s.communes.add(b.commune);
     });
 
@@ -96,7 +96,7 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
         data: {
           labels: top10.map(a => a.agent),
           datasets: [
-            { label: 'Hommes', data: top10.map(a => a.hommes), backgroundColor: G },
+            { label: 'Masculin', data: top10.map(a => a.hommes), backgroundColor: G },
             { label: 'Femmes', data: top10.map(a => a.femmes), backgroundColor: R }
           ]
         },

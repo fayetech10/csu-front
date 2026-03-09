@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { Assure } from '../../core/models/beneficiaire.model';
 import { Chart, registerables } from 'chart.js';
@@ -27,13 +29,19 @@ export class CarteComponent implements OnInit, OnDestroy {
     cartesNonRemises = 0;
     tauxRemise = 0;
 
+    // Batches
+    batches: string[] = [];
+    selectedBatch: string | null = null;
+
     // Filters
     searchTerm = '';
     filterStatut = '';
     filterDept = '';
     filterRegion = '';
+    filterAgent = '';
     depts: string[] = [];
     regions: string[] = [];
+    agents: string[] = [];
 
     // Pagination
     currentPage = 1;
@@ -62,7 +70,27 @@ export class CarteComponent implements OnInit, OnDestroy {
     constructor(private svc: BeneficiaireService) { }
 
     ngOnInit() {
+        this.loadBatches();
+        this.loadAgents();
         this.loadData();
+    }
+
+    loadBatches() {
+        this.svc.getImportBatches().subscribe({
+            next: (res) => {
+                this.batches = res.data || [];
+            },
+            error: (err) => console.error('Erreur chargement batches:', err)
+        });
+    }
+
+    loadAgents() {
+        this.svc.getAgents().subscribe({
+            next: (res) => {
+                this.agents = res.data || [];
+            },
+            error: (err) => console.error('Erreur chargement agents:', err)
+        });
     }
 
     ngOnDestroy() {
@@ -73,8 +101,12 @@ export class CarteComponent implements OnInit, OnDestroy {
 
     loadData() {
         this.loading = true;
-        this.svc.getAssures(0, 100000)
-            .pipe(takeUntil(this._destroy$))
+
+        const observable = this.selectedBatch
+            ? this.svc.getAssuresByBatch(this.selectedBatch, 0, 100000)
+            : this.svc.getAssures(0, 100000);
+
+        observable.pipe(takeUntil(this._destroy$))
             .subscribe({
                 next: (res) => {
                     this.assures = res.data || [];
@@ -90,6 +122,11 @@ export class CarteComponent implements OnInit, OnDestroy {
                     this.loading = false;
                 }
             });
+    }
+
+    selectBatch(batch: string | null) {
+        this.selectedBatch = batch;
+        this.loadData();
     }
 
     private _computeStats() {
@@ -121,6 +158,9 @@ export class CarteComponent implements OnInit, OnDestroy {
         if (this.filterDept) {
             data = data.filter(a => a.departement === this.filterDept);
         }
+        if (this.filterAgent) {
+            data = data.filter(a => a.agentCollect === this.filterAgent);
+        }
         this.filteredAssures = data;
         this.totalPages = Math.ceil(data.length / this.pageSize);
         this.currentPage = 1;
@@ -133,7 +173,35 @@ export class CarteComponent implements OnInit, OnDestroy {
         this.filterStatut = '';
         this.filterDept = '';
         this.filterRegion = '';
+        this.filterAgent = '';
         this.applyFilters();
+    }
+
+    bulkValidateAgent() {
+        if (!this.filterAgent) {
+            alert('Veuillez d\'abord sélectionner un agent collecteur.');
+            return;
+        }
+        const nonRemises = this.filteredAssures.filter(a => !a.carteAssure || a.carteAssure.trim() === '').length;
+        if (nonRemises === 0) {
+            alert('Toutes les cartes de cet agent sont déjà remises.');
+            return;
+        }
+        if (!confirm(`Voulez-vous valider la remise de ${nonRemises} carte(s) pour l'agent "${this.filterAgent}" ?`)) {
+            return;
+        }
+        this.loading = true;
+        this.svc.bulkValidateByAgent(this.filterAgent).subscribe({
+            next: (res) => {
+                alert(res.message || `${res.validated} carte(s) validée(s) !`);
+                this.loadData();
+            },
+            error: (err) => {
+                console.error('Erreur validation en masse:', err);
+                alert('Erreur lors de la validation en masse.');
+                this.loading = false;
+            }
+        });
     }
 
     get paginatedAssures(): Assure[] {
@@ -245,11 +313,13 @@ export class CarteComponent implements OnInit, OnDestroy {
                 this.svc.importAssures(file).subscribe({
                     next: () => {
                         alert('Importation de la liste des assurés réussie !');
+                        this.loadBatches();
+                        this.selectedBatch = file.name;
                         this.loadData();
                     },
                     error: (err) => {
                         console.error('Erreur import assurés:', err);
-                        alert('Erreur lors de l\'importation. Vérifiez le format du fichier.');
+                        alert('Erreur lors de l\'importation.');
                         this.loading = false;
                     }
                 });
@@ -258,45 +328,73 @@ export class CarteComponent implements OnInit, OnDestroy {
         fileInput.click();
     }
 
-    // Import cartes (matching by code)
-    openImport() {
-        this.importFile = null;
-        this.importResult = null;
-        this.showImportModal = true;
+    // Export CSV
+    exportCSV() {
+        const headers = ['Code Immatriculation', 'Nom', 'Prénom', 'Téléphone', 'Régime', 'Département', 'Commune', 'Agent', 'Statut Carte', 'Date Remise'];
+        const rows = this.filteredAssures.map(a => [
+            a.codeImmatriculation || '',
+            a.noms || '',
+            a.prenoms || '',
+            a.telephone || '',
+            a.regime || '',
+            a.departement || '',
+            a.commune || '',
+            a.agentCollect || '',
+            a.carteAssure || 'Non remise',
+            a.dateRemise || ''
+        ].map(v => `"${v}"`).join(','));
+
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `cartes_export_${new Date().toISOString().slice(0, 10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
     }
 
-    closeImport() {
-        this.showImportModal = false;
-        this.importFile = null;
-        this.importResult = null;
-        this.importing = false;
+    // Export PDF
+    exportPDF() {
+        const doc = new jsPDF('l', 'mm', 'a4');
+        doc.setFontSize(18);
+        doc.text('Liste des Cartes - SenCSU', 14, 15);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Exporté le : ${new Date().toLocaleString()}`, 14, 22);
+
+        const head = [['Code', 'Nom', 'Prénom', 'Téléphone', 'Régime', 'Département', 'Commune', 'Agent', 'Statut', 'Date Remise']];
+        const body = this.filteredAssures.map(a => [
+            a.codeImmatriculation || '',
+            a.noms || '',
+            a.prenoms || '',
+            a.telephone || '',
+            a.regime || '',
+            a.departement || '',
+            a.commune || '',
+            a.agentCollect || '',
+            a.carteAssure || 'Non remise',
+            a.dateRemise || ''
+        ]);
+
+        autoTable(doc, {
+            head: head,
+            body: body,
+            startY: 28,
+            theme: 'grid',
+            headStyles: { fillColor: [0, 133, 63], textColor: [255, 255, 255], fontSize: 8 },
+            styles: { fontSize: 7, cellPadding: 2 },
+            alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+
+        doc.save(`cartes_export_${new Date().toISOString().slice(0, 10)}.pdf`);
     }
 
-    onImportFileChange(event: Event) {
-        const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
-            this.importFile = input.files[0];
-        }
-    }
-
-    submitImport() {
-        if (!this.importFile) return;
-        this.importing = true;
-        this.svc.importCartes(this.importFile)
-            .pipe(takeUntil(this._destroy$))
-            .subscribe({
-                next: (res) => {
-                    this.importResult = { updated: res.updated, notFound: res.notFound };
-                    this.importing = false;
-                    // Reload data
-                    this.loadData();
-                },
-                error: (err) => {
-                    console.error('Erreur importation cartes:', err);
-                    alert('Erreur lors de l\'importation.');
-                    this.importing = false;
-                }
-            });
+    onExportChange(event: any) {
+        const format = event.target.value;
+        if (format === 'csv') this.exportCSV();
+        if (format === 'pdf') this.exportPDF();
+        event.target.value = '';
     }
 
     private _refreshCharts() {
@@ -312,7 +410,6 @@ export class CarteComponent implements OnInit, OnDestroy {
         const G = '#00853f', R = '#e31b23';
         const base = { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { family: 'Plus Jakarta Sans' }, padding: 14 } } } };
 
-        // Doughnut chart
         const el = document.getElementById('chartCarteStatut') as HTMLCanvasElement;
         if (el) {
             this._charts.push(new Chart(el, {
@@ -325,7 +422,6 @@ export class CarteComponent implements OnInit, OnDestroy {
             }));
         }
 
-        // Bar chart by département
         const deptMap = new Map<string, { remises: number; nonRemises: number }>();
         this.assures.forEach(a => {
             const d = a.departement || 'Inconnu';

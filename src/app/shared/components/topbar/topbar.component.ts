@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -8,12 +9,13 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, FormsModule],
   templateUrl: './topbar.component.html'
 })
 export class TopbarComponent implements OnInit {
   pageTitle = 'Tableau de bord';
   today = '';
+  searchQuery = '';
 
   private titles: Record<string, string> = {
     '/dashboard': 'Tableau de bord',
@@ -44,6 +46,14 @@ export class TopbarComponent implements OnInit {
     this.sidebarService.toggle();
   }
 
+  performSearch() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/beneficiaires'], {
+        queryParams: { search: this.searchQuery.trim() }
+      });
+    }
+  }
+
   ngOnInit() {
     this.today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
     this.pageTitle = this.titles[this.router.url] ?? 'SENCSU';
@@ -52,3 +62,4 @@ export class TopbarComponent implements OnInit {
       .subscribe((e: any) => this.pageTitle = this.titles[e.urlAfterRedirects] ?? 'SENCSU');
   }
 }
+

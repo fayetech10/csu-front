@@ -5,12 +5,12 @@ import {
   Beneficiaire, BeneficiaireFilter, StatsDashboard,
   StatsDept, StatsCommune, PageResult
 } from '../models/beneficiaire.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class BeneficiaireService {
   private http = inject(HttpClient);
-  // Changez l'URL selon votre environnement (dev ou prod)
-  private readonly apiUrl = 'http://localhost:8080/api';
+  private readonly apiUrl = environment.apiUrl;
 
 
   getBeneficiaires(page = 0, size = 10000): Observable<PageResult<Beneficiaire>> {
@@ -110,6 +110,35 @@ export class BeneficiaireService {
   getAssures(page = 0, size = 10000): Observable<any> {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<any>(`${this.apiUrl}/excel/assures`, { params });
+  }
+
+  /**
+   * Récupère la liste des batches d'importation
+   */
+  getImportBatches(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/excel/imports`);
+  }
+
+  /**
+   * Récupère les assurés d'un batch spécifique
+   */
+  getAssuresByBatch(batchName: string, page = 0, size = 10000): Observable<any> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<any>(`${this.apiUrl}/excel/assures/batch/${batchName}`, { params });
+  }
+
+  /**
+   * Récupère la liste des agents collecteurs
+   */
+  getAgents(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/excel/agents`);
+  }
+
+  /**
+   * Valide toutes les cartes d'un agent en masse
+   */
+  bulkValidateByAgent(agentName: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/excel/assures/bulk-validate/${agentName}`, {});
   }
 
   /**

@@ -48,6 +48,7 @@ export interface Assure {
   typeCotisation: string;
   cni: string;
   photo: string;
+  agentCollect?: string;
   carteAssure?: string;
   dateRemise?: string;
 }

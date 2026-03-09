@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -11,19 +11,32 @@ import { AuthService } from '../../core/services/auth.service';
     templateUrl: './login.component.html',
     styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     loginForm: FormGroup;
     loading = false;
     error = '';
+    sessionExpired = false;
 
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute
     ) {
         this.loginForm = this.fb.group({
             email: ['', [Validators.required]],
             password: ['', [Validators.required, Validators.minLength(4)]]
+        });
+    }
+
+    ngOnInit(): void {
+        // Check if redirected due to expired session
+        this.route.queryParams.subscribe(params => {
+            if (params['reason'] === 'expired') {
+                this.sessionExpired = true;
+                // Auto-hide after 8 seconds
+                setTimeout(() => this.sessionExpired = false, 8000);
+            }
         });
     }
 
@@ -37,6 +50,7 @@ export class LoginComponent {
 
         this.loading = true;
         this.error = '';
+        this.sessionExpired = false;
 
         this.authService.login(this.loginForm.value).subscribe({
             next: () => {

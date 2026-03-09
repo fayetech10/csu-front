@@ -10,8 +10,8 @@
             <!-- Logo & Title -->
             <div class="text-center mb-10">
                 <div
-                    class="w-20 h-20 bg-sencsu-green/10 rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-sm border border-sencsu-green/5">
-                    <span class="material-symbols-outlined text-4xl text-sencsu-green">flag</span>
+                    class="w-20 h-20 bg-white rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-sm border border-gray-100 overflow-hidden">
+                    <img src="/assets/logo.png" alt="SenCSU Logo" class="w-full h-full object-cover">
                 </div>
                 <h1 class="text-2xl font-black text-gray-900 tracking-tight leading-tight">Bienvenue sur SenCSU</h1>
                 <p class="text-sm text-gray-400 mt-2">Connectez-vous pour gérer les enrôlements</p>
@@ -19,6 +19,21 @@
 
             <!-- Login Form -->
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+                <!-- Session Expired Banner -->
+                <div *ngIf="sessionExpired"
+                    class="bg-amber-50 text-amber-700 text-xs font-bold p-4 rounded-2xl border border-amber-200 animate-fade-in flex items-center gap-3">
+                    <span class="material-symbols-outlined text-lg flex-shrink-0 text-amber-500">timer_off</span>
+                    <div class="flex-1">
+                        <p class="font-extrabold text-amber-800 text-sm">Session expirée</p>
+                        <p class="font-medium text-amber-600 mt-0.5">Votre session a expiré. Veuillez vous reconnecter.
+                        </p>
+                    </div>
+                    <button type="button" (click)="sessionExpired = false"
+                        class="text-amber-400 hover:text-amber-600 border-0 bg-transparent cursor-pointer p-0">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
 
                 <div *ngIf="error"
                     class="bg-red-50 text-red-500 text-xs font-bold p-4 rounded-2xl border border-red-100 animate-fade-in flex items-center gap-3">
