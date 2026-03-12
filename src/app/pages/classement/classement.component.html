@@ -12,13 +12,15 @@
   </div>
 
   <!-- Tabs -->
-  <div class="flex gap-2">
-    <button *ngFor="let tab of ['agents', 'communes', 'regions']"
-      class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border-0 cursor-pointer flex items-center gap-2"
-      [ngClass]="activeTab === tab ? 'bg-sencsu-green text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'"
-      (click)="activeTab = $any(tab)">
-      <span class="material-symbols-outlined text-lg">{{ tabIcon(tab) }}</span> {{ tabLabel(tab) }}
-    </button>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex gap-2">
+      <button *ngFor="let tab of ['agents', 'communes', 'regions']"
+        class="px-4 py-2 rounded-xl text-sm font-semibold transition-all border-0 cursor-pointer flex items-center gap-2"
+        [ngClass]="activeTab === tab ? 'bg-sencsu-green text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'"
+        (click)="activeTab = $any(tab)">
+        <span class="material-symbols-outlined text-lg">{{ tabIcon(tab) }}</span> {{ tabLabel(tab) }}
+      </button>
+    </div>
   </div>
 
   <!-- Podium Top 3 -->

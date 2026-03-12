@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgIf, NgFor, DecimalPipe } from '@angular/common';
+import { NgIf, NgFor, NgClass, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
-import { StatsDashboard, StatsDept, StatsCommune, Beneficiaire } from '../../core/models/beneficiaire.model';
+import { StatsDashboard, StatsDept, StatsCommune, Beneficiaire, PageResult } from '../../core/models/beneficiaire.model';
+import { GlobalFilterService } from '../../core/services/global-filter.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -12,7 +14,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [NgIf, NgFor, DecimalPipe, FormsModule, StatCardComponent],
+  imports: [NgIf, NgFor, NgClass, DecimalPipe, FormsModule, StatCardComponent],
   templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -25,27 +27,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
   selectedDept = '';
   loading = true;
 
+  selectedYear: number | null = null;
+  private _allData: Beneficiaire[] = [];
+
   private _charts: Chart[] = [];
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(
+    private svc: BeneficiaireService,
+    private filterService: GlobalFilterService
+  ) { }
 
   ngOnInit() {
     this.loading = true;
-    this.svc.getBeneficiaires(0, 100000) // Récupère le modèle Bénéficiaire
+    this.svc.getBeneficiaires(0, 100000)
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
-        next: (res) => {
-          const data = res.data;
-          console.log('Bénéficiaires chargés sur Dashboard:', data);
-          // Calcul des stats
-          this.stats = this._computeDashboardStats(data);
-          this.depts = this._computeDeptStats(data);
-          this.communes = this._computeCommuneStats(data);
-          this.filteredCommunes = [...this.communes];
-
-          // Initialiser les graphiques
-          setTimeout(() => this._initCharts(data), 0);
-
+        next: (res: PageResult<Beneficiaire>) => {
+          this._allData = res.data;
+          this.filterService.selectedYear$
+            .pipe(takeUntil(this._destroy$))
+            .subscribe(year => {
+              this.selectedYear = year;
+              this._updateDashboard();
+            });
           this.loading = false;
         },
         error: (err) => {
@@ -54,6 +59,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+
+  private _updateDashboard() {
+    let filtered = this._allData;
+    if (this.selectedYear) {
+      filtered = this._allData.filter(b => {
+        const dateStr = b.date || (b as any).dateEnregistrement;
+        if (!dateStr) return false;
+        const parts = dateStr.split('/');
+        const year = parts.length === 3 ? parseInt(parts[2]) : new Date(dateStr).getFullYear();
+        return year === this.selectedYear;
+      });
+    }
+
+    this.stats = this._computeDashboardStats(filtered);
+    this.depts = this._computeDeptStats(filtered);
+    this.communes = this._computeCommuneStats(filtered);
+    this.filteredCommunes = [...this.communes];
+    
+    setTimeout(() => this._initCharts(filtered), 0);
+  }
+
 
   ngOnDestroy() {
     this._destroy$.next();
@@ -189,17 +216,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' } }, y: { grid: { color: 'rgba(0,0,0,.04)' } } } }
     });
-    // Graphique départements
+    // Graphique Communes (Full Width Optimized)
     mk('chartCom', {
       type: 'bar',
       data: {
         labels: this.communes.map(c => c.commune),
         datasets: [
-          { label: 'Hommes', data: this.communes.map(c => c.hommes), backgroundColor: G },
-          { label: 'Femmes', data: this.communes.map(c => c.femmes), backgroundColor: R }
+          { label: 'Hommes', data: this.communes.map(c => c.hommes), backgroundColor: G, borderRadius: 4 },
+          { label: 'Femmes', data: this.communes.map(c => c.femmes), backgroundColor: R, borderRadius: 4 }
         ]
       },
-      options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' } }, y: { grid: { color: 'rgba(0,0,0,.04)' } } } }
+      options: { 
+        ...base, 
+        maintainAspectRatio: false,
+        scales: { 
+          x: { 
+            grid: { display: false },
+            ticks: { font: { size: 10 } }
+          }, 
+          y: { 
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,.04)' } 
+          } 
+        },
+        plugins: {
+          ...base.plugins,
+          legend: { position: 'top', align: 'end', labels: { boxWidth: 12, usePointStyle: true } }
+        }
+      }
     });
 
     // Graphique sexe global
@@ -214,8 +258,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // chartType
     const types = [
-      { type: 'Classique', count: data.filter(b => b.typeBenef === 'Classique').length },
-      { type: 'Dara', count: data.filter(b => b.typeBenef === 'Dara').length }
+      { type: 'Familiale', count: data.filter(b => b.typeAdhesion === 'Familiale').length },
+      { type: 'NDONGO DAARA', count: data.filter(b => b.typeAdhesion === 'NDONGO DAARA').length }
     ];
     const Y = '#f39c12';
     mk('chartType', {
@@ -228,7 +272,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     // QUALITE BENEFCIAIRE (Adherent vs Personne a charge)
-    const adherents = data.filter(b => b.beneficiaire === 'Adherent').length;
+    const adherents = data.filter(b => b.beneficiaire === 'Adhérent').length;
     const aCharge = data.length - adherents;
     mk('chartQualite', {
       type: 'doughnut',

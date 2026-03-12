@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, NgFor, NgClass, AsyncPipe } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 import { SidebarService } from '../../../core/services/sidebar.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { GlobalFilterService } from '../../../core/services/global-filter.service';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [NgIf, FormsModule],
+  imports: [NgIf, NgFor, NgClass, AsyncPipe, FormsModule],
   templateUrl: './topbar.component.html'
 })
 export class TopbarComponent implements OnInit {
@@ -35,7 +36,8 @@ export class TopbarComponent implements OnInit {
   constructor(
     private router: Router,
     private sidebarService: SidebarService,
-    public authService: AuthService
+    public authService: AuthService,
+    public filterService: GlobalFilterService
   ) { }
 
   logout() {
@@ -52,6 +54,10 @@ export class TopbarComponent implements OnInit {
         queryParams: { search: this.searchQuery.trim() }
       });
     }
+  }
+
+  onYearChange(year: number | null) {
+    this.filterService.setYear(year);
   }
 
   ngOnInit() {

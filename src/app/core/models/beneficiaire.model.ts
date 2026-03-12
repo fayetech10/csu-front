@@ -22,6 +22,7 @@ export interface Beneficiaire {
   commune: string;
   typeBenef: string; // ex: "Classique" ou "Dara"
   typeAdhesion?: string;
+  date?: string;
 }
 
 export interface Assure {

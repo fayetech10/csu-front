@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
-import { Beneficiaire } from '../../core/models/beneficiaire.model';
+import { Beneficiaire, PageResult } from '../../core/models/beneficiaire.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { GlobalFilterService } from '../../core/services/global-filter.service';
 
 interface RankItem {
   label: string;
@@ -28,20 +29,48 @@ export class ClassementComponent implements OnInit, OnDestroy {
   communesRank: RankItem[] = [];
   regionsRank: RankItem[] = [];
   totalBenef = 0;
+  
+  selectedYear: number | null = null;
+  private _allData: Beneficiaire[] = [];
 
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(
+    private svc: BeneficiaireService,
+    private filterService: GlobalFilterService
+  ) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 10000)
+    this.svc.getBeneficiaires(0, 50000)
       .pipe(takeUntil(this._destroy$))
-      .subscribe(res => {
-        this.totalBenef = res.data.length;
-        this._computeRankings(res.data);
+      .subscribe((res: PageResult<Beneficiaire>) => {
+        this._allData = res.data;
+        this.filterService.selectedYear$
+          .pipe(takeUntil(this._destroy$))
+          .subscribe(year => {
+            this.selectedYear = year;
+            this._updateRankings();
+          });
         this.loading = false;
       });
   }
+
+
+  private _updateRankings() {
+    let filtered = this._allData;
+    if (this.selectedYear) {
+      filtered = this._allData.filter(b => {
+        const dateStr = b.date || (b as any).dateEnregistrement;
+        if (!dateStr) return false;
+        const parts = dateStr.split('/');
+        const year = parts.length === 3 ? parseInt(parts[2]) : new Date(dateStr).getFullYear();
+        return year === this.selectedYear;
+      });
+    }
+    this.totalBenef = filtered.length;
+    this._computeRankings(filtered);
+  }
+
 
   ngOnDestroy() {
     this._destroy$.next();

@@ -3,8 +3,9 @@ import { NgIf, NgFor, NgClass, DecimalPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
-import { Beneficiaire } from '../../core/models/beneficiaire.model';
+import { Beneficiaire, PageResult } from '../../core/models/beneficiaire.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { GlobalFilterService } from '../../core/services/global-filter.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -32,20 +33,48 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
   moyenneParAgent = 0;
   topAgent = '';
 
+  selectedYear: number | null = null;
+  private _allData: Beneficiaire[] = [];
+
   private _charts: Chart[] = [];
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(
+    private svc: BeneficiaireService,
+    private filterService: GlobalFilterService
+  ) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 100000)
+    this.svc.getBeneficiaires(0, 50000)
       .pipe(takeUntil(this._destroy$))
-      .subscribe(res => {
-        this._computeStats(res.data);
-        setTimeout(() => this._initCharts(), 0);
+      .subscribe((res: PageResult<Beneficiaire>) => {
+        this._allData = res.data;
+        this.filterService.selectedYear$
+          .pipe(takeUntil(this._destroy$))
+          .subscribe(year => {
+            this.selectedYear = year;
+            this._updateStats();
+          });
         this.loading = false;
       });
   }
+
+
+  private _updateStats(data: Beneficiaire[] | null = null) {
+    let filtered = data || this._allData;
+    if (this.selectedYear) {
+      filtered = this._allData.filter(b => {
+        const dateStr = b.date || (b as any).dateEnregistrement;
+        if (!dateStr) return false;
+        const parts = dateStr.split('/');
+        const year = parts.length === 3 ? parseInt(parts[2]) : new Date(dateStr).getFullYear();
+        return year === this.selectedYear;
+      });
+    }
+    this._computeStats(filtered);
+    setTimeout(() => this._initCharts(), 0);
+  }
+
 
   ngOnDestroy() {
     this._destroy$.next();
@@ -117,9 +146,9 @@ export class PerformanceAgentsComponent implements OnInit, OnDestroy {
   }
 
   medalIcon(i: number): string {
-    if (i === 0) return '🥇';
-    if (i === 1) return '🥈';
-    if (i === 2) return '🥉';
-    return (i + 1).toString();
+    if (i === 0) return 'workspace_premium';
+    if (i === 1) return 'military_tech';
+    if (i === 2) return 'military_tech';
+    return '';
   }
 }

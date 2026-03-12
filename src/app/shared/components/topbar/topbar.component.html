@@ -8,6 +8,24 @@
 
   <h1 class="text-sm md:text-base font-bold text-gray-800 truncate">{{ pageTitle }}</h1>
 
+  <div class="hidden sm:block w-px h-5 bg-gray-200"></div>
+
+  <!-- Global Year Filter -->
+  <div class="flex items-center gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100 hidden sm:flex">
+    <button 
+      class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border-0 cursor-pointer whitespace-nowrap"
+      [ngClass]="(filterService.selectedYear$ | async) === null ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'"
+      (click)="onYearChange(null)">
+      Tout
+    </button>
+    <button *ngFor="let year of filterService.availableYears$ | async"
+      class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border-0 cursor-pointer whitespace-nowrap"
+      [ngClass]="(filterService.selectedYear$ | async) === year ? 'bg-gray-900 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'"
+      (click)="onYearChange(year)">
+      {{ year }}
+    </button>
+  </div>
+
   <!-- Global Search -->
   <div class="hidden md:flex relative flex-1 max-w-xs">
     <span

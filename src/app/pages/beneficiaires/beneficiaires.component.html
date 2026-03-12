@@ -97,6 +97,7 @@
             <th>Region</th>
             <th>Departement</th>
             <th>Commune</th>
+            <th>Date Enr.</th>
           </tr>
         </thead>
         <tbody>
@@ -120,6 +121,7 @@
             <td class="text-xs">{{ b.region }}</td>
             <td class="text-xs">{{ b.departement }}</td>
             <td class="text-xs font-medium text-gray-700">{{ b.commune }}</td>
+            <td class="text-xs font-mono text-gray-500">{{ b.date || '—' }}</td>
           </tr>
           <tr *ngIf="result.data.length === 0">
             <td colspan="12" class="text-center py-14">

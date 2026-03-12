@@ -13,17 +13,13 @@
 <div *ngIf="!loading" class="page-anim space-y-6">
 
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
     <div>
       <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight">Tableau de bord</h1>
-      <p class="text-xs md:text-sm text-gray-400 mt-1">Indicateurs de performance — Exercice 2025</p>
+      <p class="text-xs md:text-sm text-gray-400 mt-1">Indicateurs de performance — {{ selectedYear || 'Global' }}</p>
     </div>
+
     <div class="flex items-center gap-3">
-      <input type="file" id="excelImport" class="hidden" (change)="onFileSelected($event)" accept=".xlsx, .xls">
-      <button (click)="importExcel()" class="btn-outline-green flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">upload_file</span>
-        Importer Excel
-      </button>
     </div>
   </div>
 
@@ -89,13 +85,17 @@
 
   <!-- Chart Full Width -->
   <div class="card p-5 overflow-hidden">
-    <div class="flex items-center gap-2 mb-1">
-      <span class="material-symbols-outlined text-teal-500 text-[18px]">location_on</span>
-      <p class="text-sm font-bold text-gray-800">Bénéficiaires par Commune</p>
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-teal-500 text-[18px]">location_on</span>
+        <p class="text-sm font-bold text-gray-800">Bénéficiaires par Commune (Global)</p>
+      </div>
+      <p class="text-[10px] text-gray-400">Défilez horizontalement sur mobile</p>
     </div>
-    <p class="text-xs text-gray-400 mb-4">Répartition Hommes / Femmes</p>
-    <div class="h-[250px] md:h-[300px] w-full">
-      <canvas id="chartCom"></canvas>
+    <div class="h-[350px] md:h-[400px] w-full overflow-x-auto">
+      <div class="min-w-[800px] md:min-w-0 h-full">
+        <canvas id="chartCom"></canvas>
+      </div>
     </div>
   </div>
 
@@ -117,7 +117,7 @@
         <span class="material-symbols-outlined text-indigo-500 text-[18px]">category</span>
         <p class="text-sm font-bold text-gray-800">Type de bénéficiaire</p>
       </div>
-      <p class="text-xs text-gray-400 mb-4">Classique vs Dara</p>
+      <p class="text-xs text-gray-400 mb-4">Familiale vs NDONGO DAARA</p>
       <div class="h-[200px] md:h-[250px] w-full">
         <canvas id="chartType"></canvas>
       </div>
@@ -128,7 +128,7 @@
         <span class="material-symbols-outlined text-amber-500 text-[18px]">map</span>
         <p class="text-sm font-bold text-gray-800">Type par Région</p>
       </div>
-      <p class="text-xs text-gray-400 mb-4">Proportion de Dara par zone</p>
+      <p class="text-xs text-gray-400 mb-4">Proportion de NDONGO DAARA par zone</p>
       <div class="h-[200px] md:h-[250px] w-full">
         <canvas id="chartTypeRegion"></canvas>
       </div>
@@ -146,7 +146,7 @@
         <select class="form-ctrl text-xs md:text-sm w-full sm:w-auto" [(ngModel)]="selectedDept"
           (change)="filterCommunes()">
           <option value="">Tous les départements</option>
-          <option *ngFor="let d of depts" [value]="d">{{ d }}</option>
+          <option *ngFor="let d of depts" [value]="d.departement">{{ d.departement }}</option>
         </select>
       </div>
     </div>
