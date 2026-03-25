@@ -42,7 +42,7 @@ export class TypeBeneficiaireComponent implements OnInit, OnDestroy {
   constructor(private svc: BeneficiaireService) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 1000)
+    this.svc.getBeneficiaires(0, 100000)
       .pipe(takeUntil(this._destroy$))
       .subscribe(res => {
         const data = res.data;

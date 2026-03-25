@@ -45,6 +45,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res: PageResult<Beneficiaire>) => {
           this._allData = res.data;
+          console.log(this._allData);
           this.filterService.selectedYear$
             .pipe(takeUntil(this._destroy$))
             .subscribe(year => {
@@ -77,7 +78,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.depts = this._computeDeptStats(filtered);
     this.communes = this._computeCommuneStats(filtered);
     this.filteredCommunes = [...this.communes];
-    
+
     setTimeout(() => this._initCharts(filtered), 0);
   }
 
@@ -226,18 +227,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
           { label: 'Femmes', data: this.communes.map(c => c.femmes), backgroundColor: R, borderRadius: 4 }
         ]
       },
-      options: { 
-        ...base, 
+      options: {
+        ...base,
         maintainAspectRatio: false,
-        scales: { 
-          x: { 
+        scales: {
+          x: {
             grid: { display: false },
             ticks: { font: { size: 10 } }
-          }, 
-          y: { 
+          },
+          y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,.04)' } 
-          } 
+            grid: { color: 'rgba(0,0,0,.04)' }
+          }
         },
         plugins: {
           ...base.plugins,
@@ -257,16 +258,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     // chartType
-    const types = [
-      { type: 'Familiale', count: data.filter(b => b.typeAdhesion === 'Familiale').length },
-      { type: 'NDONGO DAARA', count: data.filter(b => b.typeAdhesion === 'NDONGO DAARA').length }
-    ];
+    const typeCounts = new Map<string, number>();
+    data.forEach(b => {
+      const t = b.typeBenef && b.typeBenef.trim() ? b.typeBenef : 'Inconnu';
+      typeCounts.set(t, (typeCounts.get(t) || 0) + 1);
+    });
+    const typeLabels = Array.from(typeCounts.keys());
+    const typeData = typeLabels.map(l => typeCounts.get(l)!);
+    const dynamicColors = [G, '#f39c12', B, '#e74c3c', '#9b59b6', '#1abc9c', '#34495e', '#e67e22', '#2ecc71', '#bdc3c7'];
+    
     const Y = '#f39c12';
     mk('chartType', {
       type: 'pie',
       data: {
-        labels: types.map(t => t.type),
-        datasets: [{ data: types.map(t => t.count), backgroundColor: [G, Y] }]
+        labels: typeLabels,
+        datasets: [{ data: typeData, backgroundColor: dynamicColors }]
       },
       options: base
     });
@@ -334,7 +340,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // TYPE BENEF VS REGION
     const typeRegions = regionsName.map(r => {
       const classiques = data.filter(b => b.region === r && b.typeBenef === 'Classique').length;
-      const daras = data.filter(b => b.region === r && b.typeBenef === 'Dara').length;
+      const daras = data.filter(b => b.region === r && b.typeBenef === 'NDONGO DAARA').length;
       return { region: r, classiques, daras };
     });
     mk('chartTypeRegion', {
@@ -343,7 +349,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         labels: typeRegions.map(r => r.region),
         datasets: [
           { label: 'Classique', data: typeRegions.map(r => r.classiques), backgroundColor: G },
-          { label: 'Dara', data: typeRegions.map(r => r.daras), backgroundColor: '#e67e22' }
+          { label: 'Ndongo Dara', data: typeRegions.map(r => r.daras), backgroundColor: '#e67e22' }
         ]
       },
       options: { ...base, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
