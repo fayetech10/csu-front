@@ -337,6 +337,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
       options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
     });
 
+    // DEPARTEMENT VS AGE
+    const deptsName = Array.from(new Set(data.filter(b => b.departement).map(b => b.departement)));
+    const ageDepts = deptsName.map(d => {
+      const inDept = data.filter(b => b.departement === d);
+      let jeunes = 0, actifs = 0, seniors = 0;
+      inDept.forEach(b => {
+        const a = this.getAge(b.dateNaissance);
+        const age = typeof a === 'number' ? a : 0;
+        if (age < 18) jeunes++;
+        else if (age < 60) actifs++;
+        else seniors++;
+      });
+      return { dept: d, jeunes, actifs, seniors };
+    });
+    mk('chartAgeDept', {
+      type: 'bar',
+      data: {
+        labels: ageDepts.map(d => d.dept),
+        datasets: [
+          { label: '0-17 ans', data: ageDepts.map(d => d.jeunes), backgroundColor: '#f1c40f' },
+          { label: '18-59 ans', data: ageDepts.map(d => d.actifs), backgroundColor: '#1abc9c' },
+          { label: '60+ ans', data: ageDepts.map(d => d.seniors), backgroundColor: '#34495e' }
+        ]
+      },
+      options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
+    });
+
+    // COMMUNE VS AGE (Top 30 communes)
+    const topCommunes = this.communes.slice(0, 30).map(c => c.commune);
+    const ageCommunes = topCommunes.map(c => {
+      const inCom = data.filter(b => b.commune === c);
+      let jeunes = 0, actifs = 0, seniors = 0;
+      inCom.forEach(b => {
+        const a = this.getAge(b.dateNaissance);
+        const age = typeof a === 'number' ? a : 0;
+        if (age < 18) jeunes++;
+        else if (age < 60) actifs++;
+        else seniors++;
+      });
+      return { commune: c, jeunes, actifs, seniors };
+    });
+    mk('chartAgeCommune', {
+      type: 'bar',
+      data: {
+        labels: ageCommunes.map(c => c.commune),
+        datasets: [
+          { label: '0-17 ans', data: ageCommunes.map(c => c.jeunes), backgroundColor: '#f1c40f' },
+          { label: '18-59 ans', data: ageCommunes.map(c => c.actifs), backgroundColor: '#1abc9c' },
+          { label: '60+ ans', data: ageCommunes.map(c => c.seniors), backgroundColor: '#34495e' }
+        ]
+      },
+      options: { ...base, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true }, y: { grid: { color: 'rgba(0,0,0,.04)' }, stacked: true } } }
+    });
+
     // TYPE BENEF VS REGION
     const typeRegions = regionsName.map(r => {
       const classiques = data.filter(b => b.region === r && b.typeBenef === 'Classique').length;

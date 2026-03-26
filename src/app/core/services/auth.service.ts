@@ -9,10 +9,10 @@ import { environment } from '../../../environments/environment';
     providedIn: 'root'
 })
 export class AuthService {
-    private readonly apiUrl = `https://unanachronistical-maverick-nonrotational.ngrok-free.dev/api/auth`;
+    private readonly apiUrl = `${environment.apiUrl}/auth`;
     private readonly TOKEN_KEY = environment.tokenKey;
     private readonly USER_KEY = environment.userKey;
-    private readonly EXPIRES_AT_KEY = 'sencsu_t0999800989809980889967oken_expires_at';
+    private readonly EXPIRES_AT_KEY = 'sencsu_token_expires_at';
 
     isLoggedIn = signal<boolean>(this.hasValidToken());
     currentUser = signal<User | null>(this.getStoredUser());

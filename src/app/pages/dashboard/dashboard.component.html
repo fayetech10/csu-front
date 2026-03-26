@@ -83,6 +83,37 @@
     </div>
   </div>
 
+  <!-- Charts: Age x Dept & Age x Commune -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    <div class="card p-5 overflow-hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-blue-500 text-[18px]">groups</span>
+          <p class="text-sm font-bold text-gray-800">Tranches d'âge par Département</p>
+        </div>
+      </div>
+      <div class="h-[250px] md:h-[300px] w-full overflow-x-auto gap-4">
+        <div class="min-w-[500px] md:min-w-0 h-full">
+          <canvas id="chartAgeDept"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-5 overflow-hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-teal-500 text-[18px]">groups</span>
+          <p class="text-sm font-bold text-gray-800">Tranches d'âge par Commune (Top 30)</p>
+        </div>
+      </div>
+      <div class="h-[250px] md:h-[300px] w-full overflow-x-auto group">
+        <div class="min-w-[600px] md:min-w-0 h-full">
+          <canvas id="chartAgeCommune"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Chart Full Width -->
   <div class="card p-5 overflow-hidden">
     <div class="flex items-center justify-between mb-4">
