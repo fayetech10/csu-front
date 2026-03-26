@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production",
+    "build": "ng build --configuration production && cp -r dist/sencsu-dashboard/browser/* dist/sencsu-dashboard/ && rm -rf dist/sencsu-dashboard/browser",
     "watch": "ng build --watch --configuration development"
   },
   "private": true,
