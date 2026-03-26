@@ -17,11 +17,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => new Error('Token expired'));
     }
 
-    // Attach token
+    // Attach token and ngrok bypass header
     const token = authService.getToken();
-    const request = token
-        ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-        : req;
+    const headers: any = {
+        'ngrok-skip-browser-warning': 'true'
+    };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const request = req.clone({ setHeaders: headers });
 
     return next(request).pipe(
         catchError((error: HttpErrorResponse) => {

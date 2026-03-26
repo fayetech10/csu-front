@@ -58,7 +58,13 @@ export class LoginComponent implements OnInit {
             },
             error: (err) => {
                 console.error('Login error:', err);
-                this.error = 'Identifiants invalides. Veuillez réessayer.';
+                if (err.status === 0) {
+                    this.error = 'Impossible de contacter le serveur. Vérifiez votre connexion ou l\'URL ngrok.';
+                } else if (err.status === 401 || err.status === 403) {
+                    this.error = 'Identifiants invalides. Veuillez réessayer.';
+                } else {
+                    this.error = 'Une erreur est survenue lors de la connexion.';
+                }
                 this.loading = false;
             }
         });
