@@ -1,6 +1,6 @@
 export const environment = {
     production: false,
-    apiUrl: 'http://localhost:8080/api',
+    apiUrl: 'https://backprod-6s6p.onrender.com/api',
     tokenKey: 'OJOUI98UJ9OIJ98J9JU9HU9H9HJ99J9UJ9UJ9UJ',
     userKey: 'I099I00J0IKOIIIKIJIJII09U98U899J9IU8U9876876YHUUIHJ9U8U9U8U9U8U9U8U9U8U9U8U9U8U9'
 };
