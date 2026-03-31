@@ -1,11 +1,34 @@
 <div class="min-h-screen flex items-center justify-center bg-[#f8fafb] relative overflow-hidden login-bg">
+    
+    <!-- Full-page Loading Overlay -->
+    <div *ngIf="loading" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/80 backdrop-blur-md animate-fade-in">
+        <div class="relative">
+            <!-- Outer Ring -->
+            <div class="w-24 h-24 border-4 border-gray-100 border-t-sencsu-green rounded-full animate-spin"></div>
+            <!-- Inner Logo -->
+            <div class="absolute inset-0 flex items-center justify-center">
+                <img src="/assets/logo.png" alt="SenCSU" class="w-12 h-12 object-contain opacity-40">
+            </div>
+        </div>
+        <div class="mt-10 flex flex-col items-center text-center">
+            <h2 class="text-xl font-black text-gray-900 tracking-tight">Authentification</h2>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-sencsu-green animate-bounce" style="animation-delay: 0s"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-sencsu-green animate-bounce" style="animation-delay: 0.2s"></div>
+                <div class="w-1.5 h-1.5 rounded-full bg-sencsu-green animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-4 animate-pulse">Session en cours de préparation</p>
+        </div>
+    </div>
+
     <!-- Decorative Elements -->
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-sencsu-green/10 rounded-full blur-[120px]"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-blue-500/10 rounded-full blur-[100px]"></div>
 
     <div class="w-full max-w-[440px] px-6 relative z-10">
         <div
-            class="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100 p-8 md:p-10 page-anim">
+            class="bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-gray-100 p-8 md:p-10 page-anim"
+            [ngClass]="{'opacity-20 pointer-events-none scale-95 transition-all duration-500': loading}">
 
             <!-- Logo & Title -->
             <div class="text-center mb-10">
