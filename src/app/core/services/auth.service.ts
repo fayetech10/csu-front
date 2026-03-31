@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
     providedIn: 'root'
 })
 export class AuthService {
-    private readonly apiUrl = `${environment.apiUrl}/auth`;
+    private readonly apiUrl = `https://backprod-6s6p.onrender.com/api/auth`;
     private readonly TOKEN_KEY = environment.tokenKey;
     private readonly USER_KEY = environment.userKey;
     private readonly EXPIRES_AT_KEY = 'sencsu_token_expires_at';
