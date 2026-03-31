@@ -3,7 +3,7 @@ import { NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import { BeneficiaireStore } from '../../core/services/beneficiaire-store.service';
 import { Beneficiaire } from '../../core/models/beneficiaire.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { Chart, registerables } from 'chart.js';
@@ -38,14 +38,14 @@ export class SuiviCouvertureComponent implements OnInit, OnDestroy {
   private _charts: Chart[] = [];
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(private store: BeneficiaireStore) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 50000)
+    this.store.getBeneficiaires()
       .pipe(takeUntil(this._destroy$))
-      .subscribe(res => {
-        this.totalBenef = res.data.length;
-        this._computeStats(res.data);
+      .subscribe(data => {
+        this.totalBenef = data.length;
+        this._computeStats(data);
         setTimeout(() => this._initCharts(), 0);
         this.loading = false;
       });

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgIf, NgFor, DecimalPipe } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import { BeneficiaireStore } from '../../core/services/beneficiaire-store.service';
 import { Beneficiaire } from '../../core/models/beneficiaire.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { Chart, registerables } from 'chart.js';
@@ -35,13 +35,13 @@ export class EnroulementMensuelComponent implements OnInit, OnDestroy {
 
   private readonly MOIS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(private store: BeneficiaireStore) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 100000)
+    this.store.getBeneficiaires()
       .pipe(takeUntil(this._destroy$))
-      .subscribe(res => {
-        this._computeStats(res.data);
+      .subscribe(data => {
+        this._computeStats(data);
         setTimeout(() => this._initCharts(), 0);
         this.loading = false;
       });

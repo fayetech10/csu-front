@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import { BeneficiaireStore } from '../../core/services/beneficiaire-store.service';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { StatsDashboard, StatsDept, StatsCommune, Beneficiaire, PageResult } from '../../core/models/beneficiaire.model';
 import { GlobalFilterService } from '../../core/services/global-filter.service';
@@ -35,17 +36,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private svc: BeneficiaireService,
+    private store: BeneficiaireStore,
     private filterService: GlobalFilterService
   ) { }
 
   ngOnInit() {
     this.loading = true;
-    this.svc.getBeneficiaires(0, 100000)
+    this.store.getBeneficiaires()
       .pipe(takeUntil(this._destroy$))
       .subscribe({
-        next: (res: PageResult<Beneficiaire>) => {
-          this._allData = res.data;
-          console.log(this._allData);
+        next: (data: Beneficiaire[]) => {
+          this._allData = data;
           this.filterService.selectedYear$
             .pipe(takeUntil(this._destroy$))
             .subscribe(year => {
@@ -107,7 +108,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.svc.importBeneficiaires(file).subscribe({
         next: () => {
           alert('Importation des bénéficiaires réussie !');
-          this.ngOnInit(); // Recharge les données
+          this.store.refresh(); // Invalide le cache centralisé
+          this.loading = false;
         },
         error: (err) => {
           console.error('Import error:', err);

@@ -3,7 +3,7 @@ import { NgIf, NgFor, NgClass, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import { BeneficiaireStore } from '../../core/services/beneficiaire-store.service';
 import { Beneficiaire, PageResult } from '../../core/models/beneficiaire.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
 import { GlobalFilterService } from '../../core/services/global-filter.service';
@@ -36,15 +36,15 @@ export class ClassementComponent implements OnInit, OnDestroy {
   private _destroy$ = new Subject<void>();
 
   constructor(
-    private svc: BeneficiaireService,
+    private store: BeneficiaireStore,
     private filterService: GlobalFilterService
   ) { }
 
   ngOnInit() {
-    this.svc.getBeneficiaires(0, 50000)
+    this.store.getBeneficiaires()
       .pipe(takeUntil(this._destroy$))
-      .subscribe((res: PageResult<Beneficiaire>) => {
-        this._allData = res.data;
+      .subscribe((data: Beneficiaire[]) => {
+        this._allData = data;
         this.filterService.selectedYear$
           .pipe(takeUntil(this._destroy$))
           .subscribe(year => {

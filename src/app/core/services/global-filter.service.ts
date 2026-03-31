@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Beneficiaire } from '../models/beneficiaire.model';
-import { BeneficiaireService } from './beneficiaire.service';
+import { BeneficiaireStore } from './beneficiaire-store.service';
 
 @Injectable({ providedIn: 'root' })
 export class GlobalFilterService {
@@ -11,16 +11,16 @@ export class GlobalFilterService {
   private _availableYears = new BehaviorSubject<number[]>([]);
   availableYears$ = this._availableYears.asObservable();
 
-  private svc = inject(BeneficiaireService);
+  private store = inject(BeneficiaireStore);
 
   constructor() {
     this._initYears();
   }
 
   private _initYears() {
-    this.svc.getBeneficiaires(0, 100000).subscribe(res => {
+    this.store.getBeneficiaires().subscribe(data => {
       const yearsSet = new Set<number>();
-      res.data.forEach(b => {
+      data.forEach(b => {
         const dateStr = b.date || (b as any).dateEnregistrement;
         if (dateStr) {
           const parts = dateStr.split('/');

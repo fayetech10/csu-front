@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { BeneficiaireService } from '../../core/services/beneficiaire.service';
+import { BeneficiaireStore } from '../../core/services/beneficiaire-store.service';
 import { Beneficiaire, BeneficiaireFilter, PageResult } from '../../core/models/beneficiaire.model';
 
 @Component({
@@ -26,7 +27,7 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
   private _search$ = new Subject<string>();
   private _destroy$ = new Subject<void>();
 
-  constructor(private svc: BeneficiaireService) { }
+  constructor(private svc: BeneficiaireService, private store: BeneficiaireStore) { }
 
   ngOnInit() {
     this.svc.getRegions().subscribe(r => this.regions = r);
@@ -64,6 +65,7 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
       this.svc.importBeneficiaires(file).subscribe({
         next: () => {
           alert('Importation réussie !');
+          this.store.refresh();
           this.load(1);
         },
         error: (err) => {
@@ -78,9 +80,12 @@ export class BeneficiairesComponent implements OnInit, OnDestroy {
   load(p: number) {
     this.loading = true;
     this.page = p;
-    this.svc.getBeneficiaires()
+    this.store.getBeneficiaires()
       .pipe(takeUntil(this._destroy$))
-      .subscribe(r => { this.result = r; this.loading = false; });
+      .subscribe(data => {
+        this.result = { data, total: data.length, page: this.page, perPage: this.perPage, totalPages: Math.ceil(data.length / this.perPage) };
+        this.loading = false;
+      });
   }
 
   get pages(): number[] {
